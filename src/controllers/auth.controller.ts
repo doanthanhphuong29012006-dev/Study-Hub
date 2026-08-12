@@ -55,3 +55,18 @@ export const login = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const logout = async (req: Request, res: Response) => {
+    try {
+        res.clearCookie("token");
+        
+        return res.status(200).json({
+            message: "Đăng xuất thành công!"
+        });
+    } catch (error) {
+        console.error('Lỗi hệ thống trong quá trình xử lý đăng xuất:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
