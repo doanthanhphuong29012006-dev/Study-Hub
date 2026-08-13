@@ -6,4 +6,6 @@ const router = Router();
 
 router.get('/', categoryController.getAllCategories);
 
+router.get('/:slug', categoryController.detailCategory);
+
 export default router;
