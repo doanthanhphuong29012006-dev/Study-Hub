@@ -23,10 +23,16 @@ export const detailCategory = async (req: Request, res: Response) => {
 
         const category = await categoryService.getDetailCategory(slug as string);
 
-        res.status(200).json({
-            message: "Lấy chi tiết danh mục thành công!",
-            category: category
-        })
+        if (category) {
+            res.status(200).json({
+                message: "Lấy chi tiết danh mục thành công!",
+                category: category
+            });
+        } else {
+            res.status(404).json({
+                message: "Không tìm thấy danh mục phù hợp!"
+            });
+        }
     } catch (error) {
         console.error('Lỗi hệ thống trong quá trình lấy chi tiết danh mục:', error);
         return res.status(500).json({

@@ -1,7 +1,7 @@
 import * as categoryRepository from "../repositories/category.repository";
 
 export const getAllCategories = async () => {
-    const result = await categoryRepository.findAllCategories;
+    const result = await categoryRepository.findAllCategories();
     return result;
 }
 
