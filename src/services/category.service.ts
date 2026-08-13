@@ -9,3 +9,19 @@ export const getDetailCategory = async (slug: string) => {
     const category = await categoryRepository.getCategoryBySlug(slug);
     return category;
 }
+
+export const createNewCategory = async (name: string, slug: string, description: string) => {
+    const categoryName = await categoryRepository.getCategoryByName(name);
+
+    if (categoryName) {
+        throw Error("Error_Category_Name");
+    }
+
+    const categorySlug = await categoryRepository.getCategoryBySlug(slug);
+
+    if (categorySlug) {
+        throw Error("Error_Category_Slug");
+    }
+
+    await categoryRepository.addNewCategory(name, slug, description);
+}

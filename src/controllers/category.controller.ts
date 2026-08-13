@@ -40,3 +40,27 @@ export const detailCategory = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const createCategory = async (req: Request, res: Response) => {
+    try {
+        const { name, slug, description } = req.body;
+
+        await categoryService.createNewCategory(name, slug, description);
+
+        res.status(201).json({
+            message: "Tạo mới danh mục thành công!"
+        });
+    } catch (error: any) {
+        if (error.message === "Error_Category_Name") {
+            return res.status(409).json({ message: "Tên danh mục đã tồn tại trong hệ thống!" });
+        }
+        if (error.message === "Error_Category_Slug") {
+            return res.status(409).json({ message: "Đường dẫn (slug) đã tồn tại trong hệ thống!" });
+        }
+
+        console.error('Lỗi hệ thống trong quá trình tạo mới danh mục:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
