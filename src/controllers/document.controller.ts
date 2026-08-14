@@ -3,10 +3,15 @@ import * as documentService from '../services/document.service';
 
 export const getAllDocument = async (req: Request, res: Response) => {
     try {
-        const page = parseInt(req.query.page as string) || 1
-        const limit = parseInt(req.query.limit as string) || 10
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
 
-        const data = await documentService.getAllDocument(page, limit);
+        const categoryId = req.query.categoryId;
+        const sortedBy = req.query.sortedBy;
+        const order = req.query.order;
+
+
+        const data = await documentService.getAllDocument(page, limit, categoryId, sortedBy, order);
 
         res.status(200).json({
             message: "Lấy tất cả tài liệu thành công!",
