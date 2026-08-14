@@ -45,3 +45,44 @@ export const findAllDocument = async (limit: number, skip: number, categoryId?: 
 
     return { documents, totalCount};
 }
+
+export const createNewDocument = async (
+    fileUrl: string, 
+    fileSize: number,
+    fileType: string, 
+    title: string,
+    description: string,
+    categoryId: string,
+    userId: string
+) => {
+    const userQuery = await pool.query(`
+        SELECT full_name, email, role, avatar 
+        FROM users 
+        WHERE id = $1`, 
+        [userId]
+    );
+
+    const user = userQuery.rows[0];
+    if (!user) {
+        throw Error("Does_Not_Exist_User")
+    }
+
+    const categoryQuery = await pool.query('SELECT * FROM categories WHERE id = $1', [categoryId]);
+    const category = categoryQuery.rows[0];
+    if (!category) {
+        throw Error("Does_Not_Exist_Category")
+    }
+
+    await pool.query(`
+            INSERT INTO documents (
+                file_url, 
+                file_size,
+                file_type, 
+                title,
+                description,
+                category_id,
+                uploader_id
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `, [fileUrl, fileSize, fileType, title, description, categoryId, userId]);
+}
