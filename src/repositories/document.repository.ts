@@ -127,3 +127,50 @@ export const increaseDocumentDownloadCount = async (documentId: string) => {
 
     return result.rows[0].file_url;
 }
+
+export const updateDocumentById = async (
+    documentId: string,
+    title?: string,
+    description?: string,
+    categoryId?: string
+) => {
+    const documentQuery = await pool.query('SELECT * FROM documents WHERE id = $1', [documentId]);
+
+    if (documentQuery.rowCount === 0) {
+        throw Error("Document_Not_Found");
+    }
+
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramsIdx = 1;
+
+    if (title !== undefined) {
+        updates.push(`title = $${paramsIdx}`);
+        values.push(title);
+        paramsIdx++;
+    }
+
+    if (description !== undefined) {
+        updates.push(`description = $${paramsIdx}`);
+        values.push(description);
+        paramsIdx++;
+    }
+
+    if (categoryId !== undefined) {
+        updates.push(`category_id = $${paramsIdx}`);
+        values.push(categoryId);
+        paramsIdx++;
+    }
+
+    if (updates.length === 0) return;
+
+    let query = `
+        UPDATE documents
+        SET ${updates.join(', ')}
+        WHERE id = $${paramsIdx}
+    `;
+
+    values.push(documentId);
+
+    await pool.query(query, values);
+}

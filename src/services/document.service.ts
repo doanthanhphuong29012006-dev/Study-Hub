@@ -32,3 +32,12 @@ export const downloadDocument = async (documentId: string) => {
     const fileUrl = await documentRepository.increaseDocumentDownloadCount(documentId);
     return fileUrl;
 }
+
+export const updateDocument = async (
+    documentId: string, 
+    title: string, 
+    description: string, 
+    categoryId: string
+) => {
+    await documentRepository.updateDocumentById(documentId, title, description, categoryId);
+}

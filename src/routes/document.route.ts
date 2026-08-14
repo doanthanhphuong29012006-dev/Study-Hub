@@ -28,4 +28,10 @@ router.get(
     documentController.downloadDocument
 );
 
+router.patch(
+    '/:id',
+    authMiddleware.requireAuth,
+    documentController.updateDocument
+);
+
 export default router;

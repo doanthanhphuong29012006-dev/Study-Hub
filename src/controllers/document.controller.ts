@@ -122,3 +122,29 @@ export const downloadDocument = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const updateDocument = async (req: Request, res: Response) => {
+    try {
+        const documentId = req.params.id;
+
+        const { title, description, categoryId } = req.body;
+
+        await documentService.updateDocument(documentId as string, title, description, categoryId);
+
+        res.status(200).json({
+            message: "Cập nhật tài liệu thành công!"
+        });
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình cập nhật tài liệu:', error);
+
+        if (error.message === "Document_Not_Found") {
+            return res.status(404).json({
+                message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
