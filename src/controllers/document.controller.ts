@@ -84,7 +84,33 @@ export const getDetailDocument = async (req: Request, res: Response) => {
         })
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình lấy chi tiết tài liệu:', error);
-        
+
+        if (error.message === "Document_Not_Found") {
+            return res.status(404).json({
+                message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
+
+export const downloadDocument = async (req: Request, res: Response) => {
+    try {
+        const documentId = req.params.id;
+        const fileUrl = await documentService.downloadDocument(documentId as string);
+
+        res.status(200).json({
+            message: "Tải tài liệu về thành công!",
+            data: {
+                fileUrl: fileUrl
+            }
+        });
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình tải tài liệu:', error);
+
         if (error.message === "Document_Not_Found") {
             return res.status(404).json({
                 message: 'Tài liệu không tồn tại hoặc đã bị xóa.'

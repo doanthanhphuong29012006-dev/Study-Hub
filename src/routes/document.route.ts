@@ -22,4 +22,10 @@ router.get(
     documentController.getDetailDocument
 );
 
+router.get(
+    '/:id/download', 
+    authMiddleware.requireAuth,
+    documentController.downloadDocument
+);
+
 export default router;
