@@ -148,3 +148,39 @@ export const updateDocument = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const deleteDocument = async (req: Request, res: Response) => {
+    try {
+        const documentId = req.params.id;
+
+        const fileUrl = await documentService.deleteDocument(documentId as string);
+        if (fileUrl) {
+            try {
+                const urlPart = fileUrl.split('/');
+                const fileNameWithExtension = urlPart[urlPart.length - 1];
+                const publicId = fileNameWithExtension.split('.')[0];
+
+                await cloudinary.uploader.destroy(publicId);
+                console.log(`Đã dọn file trên cloudinary: ${publicId}`)
+            } catch (cloudErr) {
+                console.error("Lỗi khi xóa file trên Cloudinary:", cloudErr);
+            }
+        }
+
+        res.status(200).json({
+            message: "Xóa tài liệu thành công!"
+        });
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình xóa tài liệu:', error);
+
+        if (error.message === "Document_Not_Found") {
+            return res.status(404).json({
+                message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}

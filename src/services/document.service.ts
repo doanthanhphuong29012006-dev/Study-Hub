@@ -41,3 +41,8 @@ export const updateDocument = async (
 ) => {
     await documentRepository.updateDocumentById(documentId, title, description, categoryId);
 }
+
+export const deleteDocument = async (documentId: string) => {
+    const fileUrl = await documentRepository.deleteDocumentById(documentId);
+    return fileUrl;
+}

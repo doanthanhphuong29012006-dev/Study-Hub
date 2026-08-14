@@ -34,4 +34,10 @@ router.patch(
     documentController.updateDocument
 );
 
+router.delete(
+    '/:id',
+    authMiddleware.requireAuth,
+    documentController.deleteDocument
+);
+
 export default router;

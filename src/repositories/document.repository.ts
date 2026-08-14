@@ -174,3 +174,18 @@ export const updateDocumentById = async (
 
     await pool.query(query, values);
 }
+
+export const deleteDocumentById = async (documentId: string) => {
+    const query = `
+        DELETE FROM documents
+        WHERE id = $1
+        RETURNING file_url
+    `;
+    const result = await pool.query(query, [documentId]);
+
+    if (result.rows.length === 0) {
+        throw new Error("Document_Not_Found");
+    }
+
+    return result.rows[0].file_url;
+}
