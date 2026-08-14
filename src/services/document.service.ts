@@ -1,5 +1,5 @@
 import * as helper from "../helpers/pagination.helper";
-import { createNewDocument, findAllDocument } from "../repositories/document.repository";
+import { createNewDocument, findAllDocument, findDocumentById } from "../repositories/document.repository";
 
 export const getAllDocument = async (page: number, limit: number, categoryId?: any, sortedBy?: any, order?: any) => {
     const skip = limit * (page - 1);
@@ -21,4 +21,9 @@ export const createDocument = async (
     userId: string
 ) => {
     await createNewDocument(fileUrl, fileSize, fileType, title, description, categoryId, userId);
+}
+
+export const getDetailDocument = async (documentId: string) => {
+    const document = await findDocumentById(documentId);
+    return document;
 }

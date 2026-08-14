@@ -16,4 +16,10 @@ router.post(
     documentController.createDocument
 );
 
+router.get(
+    '/:id', 
+    authMiddleware.requireAuth,
+    documentController.getDetailDocument
+);
+
 export default router;

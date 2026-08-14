@@ -86,3 +86,27 @@ export const createNewDocument = async (
             VALUES ($1, $2, $3, $4, $5, $6, $7)
         `, [fileUrl, fileSize, fileType, title, description, categoryId, userId]);
 }
+
+export const findDocumentById = async (documentId: string) => {
+    const query = `
+        WITH update_doc AS (
+            UPDATE documents
+            SET view_count = view_count + 1
+            WHERE id = $1
+            RETURNING *
+        )
+        SELECT d.*,
+            u.full_name AS uploader_name,
+            u.avatar AS uploader_avatar,
+            c.name AS category_title
+        FROM update_doc d
+        LEFT JOIN users u ON d.uploader_id = u.id
+        LEFT JOIN categories c ON d.category_id = c.id
+    `;
+    const result = await pool.query(query, [documentId]);
+
+    if (result.rows.length === 0) {
+        throw new Error("Document_Not_Found");
+    }
+    return result.rows[0];
+}
