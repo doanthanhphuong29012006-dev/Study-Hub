@@ -2,6 +2,8 @@ import { Router } from "express";
 import * as documentController from '../controllers/document.controller';
 import * as authMiddleware from '../middlewares/auth.middleware';
 import * as documentValidation from '../validations/document.validate';
+import * as reviewController from '../controllers/review.controller';
+import * as reviewValidation from '../validations/review.validate';
 import { uploadMiddleware } from "../middlewares/upload.middleware";
 
 const router = Router();
@@ -38,6 +40,13 @@ router.delete(
     '/:id',
     authMiddleware.requireAuth,
     documentController.deleteDocument
+);
+
+router.post(
+    '/:id/reviews', 
+    authMiddleware.requireAuth,
+    reviewValidation.createReviewValidation,
+    reviewController.createReview
 );
 
 export default router;
