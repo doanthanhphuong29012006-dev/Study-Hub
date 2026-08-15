@@ -2,7 +2,9 @@ import pool from "../config/database"
 
 export const findAllDocument = async (limit: number, skip: number, categoryId?: any, sortedBy?: any, order?: any) => {
     let query = `
-        SELECT d.*, COUNT(r.id) AS review_count
+        SELECT d.*, 
+            COUNT(r.id) AS review_count,
+            COALESCE(ROUND(AVG(r.rating), 1), 0) AS average_rating
         FROM documents d
         LEFT JOIN reviews r ON d.id = r.document_id 
         WHERE 1 = 1 
@@ -98,7 +100,11 @@ export const findDocumentById = async (documentId: string) => {
         SELECT d.*,
             u.full_name AS uploader_name,
             u.avatar AS uploader_avatar,
-            c.name AS category_title
+            c.name AS category_title,
+
+            COALESCE((SELECT COUNT(id) FROM reviews WHERE document_id = d.id), 0) AS review_count,
+
+            COALESCE((SELECT ROUND(AVG(rating), 1) FROM reviews WHERE document_id = d.id), 0) AS average_rating
         FROM update_doc d
         LEFT JOIN users u ON d.uploader_id = u.id
         LEFT JOIN categories c ON d.category_id = c.id
