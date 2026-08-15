@@ -13,3 +13,7 @@ export const getAllReview = async (documentId: string, page: number, limit: numb
 export const updateReview = async (reviewId: string, userId: string, rating: number, comment: string) => {
     await reviewRepository.updateReview(reviewId, userId, rating, comment);
 }
+
+export const deleteReview = async (reviewId: string, userId: string, userRole: string) => {
+    await reviewRepository.deleteReview(reviewId, userId, userRole);
+}

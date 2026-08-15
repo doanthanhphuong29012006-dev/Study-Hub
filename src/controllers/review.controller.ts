@@ -91,3 +91,30 @@ export const updateReview = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const deleteReview = async (req: Request, res: Response) => {
+    try {
+        const reviewId = req.params.id;
+
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        await reviewService.deleteReview(reviewId as string, userId, userRole);
+
+        res.status(200).json({
+            message: "Xóa đánh giá thành công!"
+        })
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình xóa đánh giá:', error);
+
+        if (error.message == "Delete_Review_Error") {
+            return res.status(404).json({
+                message: "Đánh giá không tồn tại hoặc đã bị xóa hoặc bạn không có quyền xóa đánh giá!"
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}

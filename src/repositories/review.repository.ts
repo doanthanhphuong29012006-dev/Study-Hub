@@ -46,3 +46,17 @@ export const updateReview = async (reviewId: string, userId: string, rating: num
         throw Error("Update_Review_Error");
     }
 }
+
+export const deleteReview = async (reviewId: string, userId: string, userRole: string) => {
+    const reviewQuery = await pool.query('SELECT user_id FROM reviews WHERE id = $1', [reviewId]);
+
+    if (reviewQuery.rowCount === 0) {
+        throw Error("Delete_Review_Error");
+    }
+
+    if (reviewQuery.rows[0].user_id !== userId && userRole !== 'admin') {
+        throw Error("Delete_Review_Error");
+    }
+
+    await pool.query('DELETE FROM reviews WHERE id = $1', [reviewId]);
+}

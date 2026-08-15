@@ -12,4 +12,10 @@ router.patch(
     reviewController.updateReview
 );
 
+router.delete(
+    '/:id',
+    authMiddleware.requireAuth,
+    reviewController.deleteReview
+);
+
 export default router;
