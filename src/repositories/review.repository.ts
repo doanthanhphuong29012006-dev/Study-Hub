@@ -33,3 +33,16 @@ export const getAllReviewInDocument = async (documentId: string, page: number, s
 
     return { reviews, pagination};
 }
+
+export const updateReview = async (reviewId: string, userId: string, rating: number, comment: string) => {
+    const reviewQuery = await pool.query(`
+            UPDATE reviews
+            SET rating = $1,
+                comment = $2
+            WHERE id = $3 AND user_id = $4
+        `, [rating, comment, reviewId, userId]);
+
+    if (reviewQuery.rowCount === 0) {
+        throw Error("Update_Review_Error");
+    }
+}

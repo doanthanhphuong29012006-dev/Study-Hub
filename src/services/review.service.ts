@@ -9,3 +9,7 @@ export const getAllReview = async (documentId: string, page: number, limit: numb
     const { reviews, pagination } = await reviewRepository.getAllReviewInDocument(documentId, page, skip, limit);
     return { reviews, pagination };
 }
+
+export const updateReview = async (reviewId: string, userId: string, rating: number, comment: string) => {
+    await reviewRepository.updateReview(reviewId, userId, rating, comment);
+}

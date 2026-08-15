@@ -63,3 +63,31 @@ export const getAllReview = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const updateReview = async (req: Request, res: Response) => {
+    try {
+        const reviewId = req.params.id;
+
+        const userId = req.user.id;
+
+        const { rating, comment } = req.body;
+
+        await reviewService.updateReview(reviewId as string, userId, rating, comment);
+
+        res.status(200).json({
+            message: "Cập nhật đánh giá thành công!"
+        })
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình cập nhật đánh giá:', error);
+
+        if (error.message == "Update_Review_Error") {
+            return res.status(404).json({
+                message: "Đánh giá không tồn tại hoặc bạn không có quyền chỉnh sửa đánh giá này!"
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
