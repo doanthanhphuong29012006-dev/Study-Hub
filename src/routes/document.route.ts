@@ -49,4 +49,10 @@ router.post(
     reviewController.createReview
 );
 
+router.get(
+    '/:id/reviews',
+    authMiddleware.requireAuth,
+    reviewController.getAllReview
+);
+
 export default router;

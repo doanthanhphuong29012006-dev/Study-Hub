@@ -4,5 +4,5 @@ export const pagination = (page: number, limit: number, totalCount: any) => {
 
     const currentPage = page || 1
 
-    return { currentPage, totalCount, limit, totalPage};
+    return { currentPage, totalCount, limit, totalPage };
 }       

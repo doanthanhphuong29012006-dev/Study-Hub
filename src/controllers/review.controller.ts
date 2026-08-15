@@ -34,3 +34,32 @@ export const createReview = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const getAllReview = async (req: Request, res: Response) => {
+    try {
+        const documentId = req.params.id;
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10; 
+
+        const { reviews, pagination } = await reviewService.getAllReview(documentId as string, page, limit);
+
+        res.status(200).json({
+            message: "Lấy tất cả đánh giá thành công!",
+            reviews: reviews,
+            pagination: pagination
+        })
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình lấy tất cả đánh giá:', error);
+
+        if (error.message == "Document_Not_Found") {
+            return res.status(404).json({
+                message: "Tài liệu không tồn tại hoặc đã bị xóa!"
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
