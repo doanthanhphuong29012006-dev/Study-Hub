@@ -62,4 +62,10 @@ router.post(
     savedDocumentController.saveDocument
 );
 
+router.delete(
+    '/:id/save', 
+    authMiddleware.requireAuth,
+    savedDocumentController.unsaveDocument
+);
+
 export default router;

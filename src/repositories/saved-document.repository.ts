@@ -7,3 +7,14 @@ export const saveDocument = async (documentId: string, userId: string) => {
         [documentId, userId]
     );
 }
+
+export const unsaveDocument = async (documentId: string, userId: string) => {
+    const result = await pool.query(`
+        DELETE FROM saved_documents WHERE document_id = $1 AND user_id = $2`, 
+        [documentId, userId]
+    );
+
+    if (result.rowCount === 0) {
+        throw Error("Saved_Document_Error");
+    }
+}

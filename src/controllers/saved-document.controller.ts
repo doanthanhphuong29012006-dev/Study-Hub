@@ -32,3 +32,29 @@ export const saveDocument = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const unsaveDocument = async (req: Request, res: Response) => {
+    try {
+        const documentId = req.params.id;
+        
+        const userId = req.user.id;
+
+        await savedDocumentService.unsaveDocument(documentId as string, userId);
+
+        res.status(200).json({
+            message: "Bỏ lưu tài liệu thành công!"
+        });
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình bỏ lưu tài liệu:', error);
+
+        if (error.message === "Saved_Document_Error") {
+            return res.status(404).json({ 
+                message: "Tài liệu hoặc người dùng không tồn tại trong hệ thống!" 
+            });
+        }
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
