@@ -4,6 +4,7 @@ import * as authMiddleware from '../middlewares/auth.middleware';
 import * as documentValidation from '../validations/document.validate';
 import * as reviewController from '../controllers/review.controller';
 import * as reviewValidation from '../validations/review.validate';
+import * as savedDocumentController from '../controllers/saved-document.controller';
 import { uploadMiddleware } from "../middlewares/upload.middleware";
 
 const router = Router();
@@ -53,6 +54,12 @@ router.get(
     '/:id/reviews',
     authMiddleware.requireAuth,
     reviewController.getAllReview
+);
+
+router.post(
+    '/:id/save', 
+    authMiddleware.requireAuth,
+    savedDocumentController.saveDocument
 );
 
 export default router;
