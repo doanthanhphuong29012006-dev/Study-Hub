@@ -58,3 +58,26 @@ export const unsaveDocument = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const getDocumentUserSaved = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id;
+
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const { savedDocuments, pagination } = await savedDocumentService.getDocumentUserSaved(userId, page, limit);
+
+        res.status(200).json({
+            message: "Lấy tài liệu đã lưu thành công!",
+            savedDocuments: savedDocuments,
+            pagination: pagination
+        });
+    } catch (error) {
+        console.error('Lỗi hệ thống trong quá trình lấy tài liệu đã lưu:', error);
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}
