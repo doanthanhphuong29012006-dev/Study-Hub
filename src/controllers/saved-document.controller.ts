@@ -81,3 +81,24 @@ export const getDocumentUserSaved = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const checkSaveStatus = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id;
+
+        const documentId = req.params.id;
+
+        const isSaved = await savedDocumentService.checkSaveStatus(userId, documentId as string);
+
+        res.status(200).json({
+            message: "Lấy trạng thái tài liệu thành công!",
+            isSaved: isSaved
+        });
+    } catch (error) {
+        console.error('Lỗi hệ thống trong quá trình lấy trạng thái tài liệu:', error);
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}

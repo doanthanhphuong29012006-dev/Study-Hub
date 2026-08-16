@@ -13,3 +13,9 @@ export const getDocumentUserSaved = async (userId: string, page: number, limit: 
 
     return { savedDocuments, pagination };
 }
+
+export const checkSaveStatus = async (userId: string, documentId: string) => {
+    const isSaved = await savedDocumentRepository.checkSaveStatus(userId, documentId);
+
+    return isSaved;
+}

@@ -50,7 +50,22 @@ export const getDocumentUserSaved = async (userId: string, page: number, limit: 
 
     const savedDocuments = savedDocumentsQuery.rows;
 
-    const pagination = helpers.pagination(page, limit, savedDocumentsCount.rows[0].count);
+    const pagination = helpers.pagination(page, limit, totalCount);
 
     return { savedDocuments, pagination }
+}
+
+export const checkSaveStatus = async (userId: string, documentId: string) => {
+    const result = await pool.query(`
+        SELECT 1 
+        FROM saved_documents 
+        WHERE document_id = $1 AND user_id = $2`, 
+        [documentId, userId]
+    );
+
+    if (result.rowCount === 0) {
+        return false;
+    }
+
+    return true;
 }
