@@ -5,3 +5,7 @@ export const getInfoUser = async (userId: string) => {
 
     return data;
 }
+
+export const updateInfoUser = async (userId: string, fullName?: string, avatar?: string) => {
+    await userRepository.updateInfoUserById(userId, fullName, avatar);
+}

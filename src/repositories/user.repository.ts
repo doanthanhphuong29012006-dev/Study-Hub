@@ -24,10 +24,46 @@ export const getInfoUserById = async (userId: string) => {
     );
 
     if (userQuery.rowCount === 0) {
-        throw Error("Get_Info_User_Error");
+        throw Error("User_Not_Found");
     }
 
     const user = userQuery.rows[0];
 
     return user;
+}
+
+export const updateInfoUserById = async (userId: string, fullName?: string, avatar?: string) => {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramsIdx = 1;
+
+    if (fullName !== undefined) {
+        updates.push(`full_name = $${paramsIdx}`);
+        values.push(fullName);
+        paramsIdx++;
+    }
+
+    if (avatar !== undefined) {
+        updates.push(`avatar = $${paramsIdx}`);
+        values.push(avatar);
+        paramsIdx++;
+    }
+
+    if (updates.length == 0) {
+        return;
+    }
+
+    let query = `
+        UPDATE users
+        SET ${updates.join(', ')}
+        WHERE id = $${paramsIdx}
+    `;
+
+    values.push(userId);
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+        throw Error("User_Not_Found");
+    }
 }
