@@ -1,6 +1,13 @@
 import pool from "../config/database"
 
-export const findAllDocument = async (limit: number, skip: number, categoryId?: any, sortedBy?: any, order?: any) => {
+export const findAllDocument = async (
+    limit: number, 
+    skip: number, 
+    categoryId?: any, 
+    keyword?: string, 
+    sortedBy?: any, 
+    order?: any
+) => {
     let query = `
         SELECT d.*, 
             COUNT(r.id) AS review_count,
@@ -20,7 +27,21 @@ export const findAllDocument = async (limit: number, skip: number, categoryId?: 
         values.push(categoryId);
         countValues.push(categoryId);
         query += `AND d.category_id = $${paramsIdx} `;
-        countQuery += `AND category_id = $${paramsIdx}`
+        countQuery += `AND category_id = $${paramsIdx} `;
+        paramsIdx++;
+    }
+
+    if (keyword) {
+        keyword = keyword.trim();
+
+        const searchPattern = `%${keyword}%`;
+
+        values.push(searchPattern);
+        countValues.push(searchPattern);
+
+        query += `AND (d.title ILIKE $${paramsIdx} OR d.description ILIKE $${paramsIdx}) `;
+        countQuery += `AND (title ILIKE $${paramsIdx} OR description ILIKE $${paramsIdx}) `;
+
         paramsIdx++;
     }
 

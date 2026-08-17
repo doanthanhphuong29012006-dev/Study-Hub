@@ -10,9 +10,9 @@ export const getAllDocument = async (req: Request, res: Response) => {
         const categoryId = req.query.categoryId;
         const sortedBy = req.query.sortedBy;
         const order = req.query.order;
+        const keyword = req.query.keyword as string || undefined;
 
-
-        const data = await documentService.getAllDocument(page, limit, categoryId, sortedBy, order);
+        const data = await documentService.getAllDocument(page, limit, categoryId, keyword, sortedBy, order);
 
         res.status(200).json({
             message: "Lấy tất cả tài liệu thành công!",
