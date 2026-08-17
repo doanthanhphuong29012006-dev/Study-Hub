@@ -15,3 +15,19 @@ export const createUser = async (email: string, fullName: string, password: stri
         [email, password, fullName]
     );
 }
+
+export const getInfoUserById = async (userId: string) => {
+    const userQuery = await pool.query(`
+        SELECT id, email, full_name, avatar FROM users 
+        WHERE id = $1`, 
+        [userId]
+    );
+
+    if (userQuery.rowCount === 0) {
+        throw Error("Get_Info_User_Error");
+    }
+
+    const user = userQuery.rows[0];
+
+    return user;
+}
