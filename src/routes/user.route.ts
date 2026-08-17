@@ -25,6 +25,10 @@ router.patch(
     userController.updateInfoUser
 );
 
-
+router.get(
+    '/my-documents', 
+    authMiddleware.requireAuth,
+    userController.getMyDocument
+);
 
 export default router;

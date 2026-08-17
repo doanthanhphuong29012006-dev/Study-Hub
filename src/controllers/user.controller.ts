@@ -54,3 +54,22 @@ export const updateInfoUser = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const getMyDocument = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id;
+
+        const documents = await userService.getMyDocument(userId);
+
+        res.status(200).json({
+            message: "Lấy tài liệu đã đăng thành công!",
+            documents: documents
+        });
+    } catch (error: any) {
+        console.error('Lỗi hệ thống trong quá trình lấy tài liệu đã đăng:', error);
+
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}

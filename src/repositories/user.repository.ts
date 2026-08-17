@@ -67,3 +67,22 @@ export const updateInfoUserById = async (userId: string, fullName?: string, avat
         throw Error("User_Not_Found");
     }
 }
+
+export const getMyDocument = async (userId: string) => {
+    const documents = await pool.query(`
+        SELECT d.*,
+            c.name AS category_title, 
+            COUNT (r.id) AS review_count,
+            COALESCE(ROUND(AVG(r.rating), 1), 0) AS average_rating
+        FROM documents d
+        LEFT JOIN categories c ON c.id = d.category_id
+        LEFT JOIN reviews r ON r.document_id = d.id 
+        WHERE d.uploader_id = $1
+        GROUP BY d.id, c.name
+        ORDER BY d.created_at DESC
+        `, 
+        [userId]
+    );
+
+    return documents.rows;
+}
