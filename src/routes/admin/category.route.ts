@@ -15,4 +15,9 @@ router.delete(
     categoryController.deleteCategory
 )
 
+router.patch(
+    '/:id',
+    categoryController.updateCategory
+)
+
 export default router;

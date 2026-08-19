@@ -93,3 +93,28 @@ export const deleteCategory = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const updateCategory = async (req: Request, res: Response) => {
+    try {
+        const categoryId = req.params.id;
+
+        const { name, slug, description } = req.body;
+
+        await categoryService.updateCategory(categoryId as string, name, slug, description);
+
+        res.status(200).json({
+            message: "Cập nhật danh mục thành công!"
+        });
+    } catch (error: any) {
+        if (error.message === "Category_Not_Found") {
+            return res.status(404).json({ 
+                message: "Danh mục không tồn tại!" 
+            });
+        }
+
+        console.error('Lỗi hệ thống trong quá trình cập nhật danh mục:', error);
+        return res.status(500).json({
+            message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
+        });
+    }
+}

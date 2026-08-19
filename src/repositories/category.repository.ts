@@ -35,3 +35,18 @@ export const deleteCategoryById = async (categoryId: string) => {
         throw Error("Category_Not_Found");
     }
 }
+
+export const updateCategoryById = async (categoryId: string, name: string, slug: string, description: string) => {
+    const existCategory = await pool.query('SELECT * FROM categories WHERE id = $1', [categoryId]);
+    if (existCategory.rowCount === 0) {
+        throw Error("Category_Not_Found");
+    }
+
+    await pool.query(`
+        UPDATE categories
+        SET name = COALESCE($1, name),
+            slug = COALESCE($2, slug),
+            description = COALESCE($3, description)
+        WHERE id = $4
+    `, [name || null, slug || null, description || null, categoryId]);
+}

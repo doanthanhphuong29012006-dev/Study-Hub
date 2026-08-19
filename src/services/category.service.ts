@@ -29,3 +29,7 @@ export const createNewCategory = async (name: string, slug: string, description:
 export const deleteCategory = async (categoryId: string) => {
     await categoryRepository.deleteCategoryById(categoryId);
 }
+
+export const updateCategory = async (categoryId: string, name: string, slug: string, description: string) => {
+    await categoryRepository.updateCategoryById(categoryId, name, slug, description);
+}
