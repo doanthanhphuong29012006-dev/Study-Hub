@@ -9,10 +9,4 @@ router.get('/', categoryController.getAllCategories);
 
 router.get('/:slug', categoryController.detailCategory);
 
-router.post(
-    '/', 
-    authMiddleware.requireAuth, 
-    categoryValidation.createCategoryValidation,
-    categoryController.createCategory);
-
 export default router;

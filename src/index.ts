@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import routes from '../src/routes/index.route';
+import routes from './routes/index.route';
+import adminRoutes from './routes/admin/index.route';
 import { connectDB } from './config/database';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 // Thiết lập đường dẫn
 app.use('/', routes);
+app.use(`/${process.env.ROUTE_ADMIN}`, adminRoutes);
 
 app.listen(PORT, async () => {
     await connectDB();

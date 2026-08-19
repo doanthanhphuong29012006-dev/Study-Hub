@@ -23,3 +23,15 @@ export const addNewCategory = async (name: string, slug: string, description: st
         [name, slug, description]
     );
 }
+
+export const deleteCategoryById = async (categoryId: string) => {
+    const checkQuery = await pool.query('SELECT 1 FROM documents WHERE category_id = $1 LIMIT 1', [categoryId]);
+    if (checkQuery.rowCount && checkQuery.rowCount > 0) {
+        throw Error("Category_In_Use");
+    }
+
+    const result = await pool.query('DELETE FROM categories WHERE id = $1', [categoryId]);
+    if (result.rowCount === 0) {
+        throw Error("Category_Not_Found");
+    }
+}

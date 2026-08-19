@@ -36,7 +36,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
             return;
         }
 
-        if (decoded.role !== 'student') {
+        if (decoded.role !== 'student' && decoded.role !== 'admin') {
             res.status(403).json({ message: "Lỗi phân quyền! Tính năng này chỉ dành cho tài khoản học viên." });
             return;
         }

@@ -25,3 +25,7 @@ export const createNewCategory = async (name: string, slug: string, description:
 
     await categoryRepository.addNewCategory(name, slug, description);
 }
+
+export const deleteCategory = async (categoryId: string) => {
+    await categoryRepository.deleteCategoryById(categoryId);
+}
