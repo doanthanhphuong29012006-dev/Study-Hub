@@ -59,3 +59,14 @@ export const changeUserStatusById = async (userId: string, status: string) => {
         await pool.query('UPDATE users SET status = $1 WHERE id = $2', [status, userId]);
     }
 }
+
+export const changeUserRoleById = async (userId: string, role: string) => {
+    const userQuery = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+    if (userQuery.rowCount === 0) {
+        throw Error("User_Not_Found");
+    }
+
+    if (role !== userQuery.rows[0].role) {
+        await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, userId]);
+    }
+}

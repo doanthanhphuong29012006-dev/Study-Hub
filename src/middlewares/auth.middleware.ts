@@ -37,7 +37,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         }
 
         if (decoded.role !== 'student' && decoded.role !== 'admin') {
-            res.status(403).json({ message: "Lỗi phân quyền! Tính năng này chỉ dành cho tài khoản học viên." });
+            res.status(403).json({ message: "Lỗi phân quyền! Vai trò của tài khoản không hợp lệ." });
             return;
         }
 
@@ -54,6 +54,12 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         }
 
         const user = existUser.rows[0];
+
+        if (user.status === 'locked') {
+            return res.status(403).json({
+                message: "Tài khoản của bạn đã bị khóa!"
+            });
+        }
 
         delete user.password_hash;
 
