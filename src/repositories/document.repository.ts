@@ -45,6 +45,8 @@ export const findAllDocument = async (
         paramsIdx++;
     }
 
+    query += `AND status = 'approved' `;
+
     query += `GROUP BY d.id `;
 
     const allowedSortFields = ['created_at', 'review_count', 'view_count', 'download_count'];
@@ -157,14 +159,20 @@ export const increaseDocumentDownloadCount = async (documentId: string) => {
 
 export const updateDocumentById = async (
     documentId: string,
+    userId: string,
+    userRole: string,
     title?: string,
     description?: string,
-    categoryId?: string
+    categoryId?: string,
 ) => {
     const documentQuery = await pool.query('SELECT * FROM documents WHERE id = $1', [documentId]);
 
     if (documentQuery.rowCount === 0) {
         throw Error("Document_Not_Found");
+    }
+
+    if (documentQuery.rows[0].uploader_id !== userId && userRole === 'student') {
+        throw Error("Permission_Denied");
     }
 
     const updates: string[] = [];
@@ -202,17 +210,18 @@ export const updateDocumentById = async (
     await pool.query(query, values);
 }
 
-export const deleteDocumentById = async (documentId: string) => {
-    const query = `
-        DELETE FROM documents
-        WHERE id = $1
-        RETURNING file_url
-    `;
-    const result = await pool.query(query, [documentId]);
+export const deleteDocumentById = async (documentId: string, userId: string, userRole: string) => {
+    const docQuery = await pool.query('SELECT uploader_id, file_url FROM documents WHERE id = $1', [documentId]);
 
-    if (result.rows.length === 0) {
-        throw new Error("Document_Not_Found");
+    if (docQuery.rowCount === 0) {
+        throw Error("Document_Not_Found");
     }
 
-    return result.rows[0].file_url;
+    if (docQuery.rows[0].uploader_id !== userId && userRole === 'student') {
+        throw Error("Permission_Denied");
+    }
+
+    await pool.query('DELETE FROM documents WHERE id = $1', [documentId]);
+
+    return docQuery.rows[0].file_url;
 }

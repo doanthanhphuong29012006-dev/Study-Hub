@@ -42,14 +42,16 @@ export const downloadDocument = async (documentId: string) => {
 
 export const updateDocument = async (
     documentId: string, 
+    userId: string,
+    userRole: string,
     title: string, 
     description: string, 
     categoryId: string
 ) => {
-    await documentRepository.updateDocumentById(documentId, title, description, categoryId);
+    await documentRepository.updateDocumentById(documentId, userId, userRole, title, description, categoryId);
 }
 
-export const deleteDocument = async (documentId: string) => {
-    const fileUrl = await documentRepository.deleteDocumentById(documentId);
+export const deleteDocument = async (documentId: string, userId: string, userRole: string) => {
+    const fileUrl = await documentRepository.deleteDocumentById(documentId, userId, userRole);
     return fileUrl;
 }

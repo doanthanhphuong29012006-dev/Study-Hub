@@ -127,9 +127,12 @@ export const updateDocument = async (req: Request, res: Response) => {
     try {
         const documentId = req.params.id;
 
+        const userId = req.user.id as string;
+        const userRole = req.user.role;
+
         const { title, description, categoryId } = req.body;
 
-        await documentService.updateDocument(documentId as string, title, description, categoryId);
+        await documentService.updateDocument(documentId as string, userId, userRole, title, description, categoryId);
 
         res.status(200).json({
             message: "Cập nhật tài liệu thành công!"
@@ -143,6 +146,12 @@ export const updateDocument = async (req: Request, res: Response) => {
             });
         }
 
+        if (error.message === "Permission_Denied") {
+            return res.status(403).json({
+                message: 'Bạn không có quyền thực hiện thao tác này!'
+            });
+        }
+
         return res.status(500).json({
             message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
         });
@@ -153,7 +162,10 @@ export const deleteDocument = async (req: Request, res: Response) => {
     try {
         const documentId = req.params.id;
 
-        const fileUrl = await documentService.deleteDocument(documentId as string);
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        const fileUrl = await documentService.deleteDocument(documentId as string, userId, userRole);
         if (fileUrl) {
             try {
                 const urlPart = fileUrl.split('/');
@@ -176,6 +188,12 @@ export const deleteDocument = async (req: Request, res: Response) => {
         if (error.message === "Document_Not_Found") {
             return res.status(404).json({
                 message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        if (error.message === "Permission_Denied") {
+            return res.status(403).json({
+                message: 'Bạn không có quyền thực hiện thao tác này!'
             });
         }
 
