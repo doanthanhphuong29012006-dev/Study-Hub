@@ -48,3 +48,14 @@ export const getAllUser = async (limit: number, page: number, email: string) => 
 
     return { users, pagination };
 }
+
+export const changeUserStatusById = async (userId: string, status: string) => {
+    const userQuery = await pool.query('SELECT status FROM users WHERE id = $1', [userId]);
+    if (userQuery.rowCount === 0) {
+        throw Error("User_Not_Found");
+    }
+
+    if (status !== userQuery.rows[0].status) {
+        await pool.query('UPDATE users SET status = $1 WHERE id = $2', [status, userId]);
+    }
+}

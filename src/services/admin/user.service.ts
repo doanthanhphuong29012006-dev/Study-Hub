@@ -5,3 +5,7 @@ export const getAllUser = async (page: number, limit: number, email: string) => 
 
     return { users, pagination };
 }
+
+export const changeUserStatus = async (userId: string, status: string) => {
+    await userRepository.changeUserStatusById(userId, status);
+}
