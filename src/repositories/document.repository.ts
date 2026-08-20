@@ -46,6 +46,7 @@ export const findAllDocument = async (
     }
 
     query += `AND status = 'approved' `;
+    countQuery += `AND status = 'approved' `;
 
     query += `GROUP BY d.id `;
 

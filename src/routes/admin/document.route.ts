@@ -5,6 +5,11 @@ import * as documentController from '../../controllers/document.controller';
 
 const router = Router();
 
+router.get(
+    '/',
+    adminDocumentController.getAllDocument
+)
+
 router.patch(
     '/:id/status',
     documentValidation.validateChangeStatus,
