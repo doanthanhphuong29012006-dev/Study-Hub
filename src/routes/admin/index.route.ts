@@ -3,6 +3,7 @@ import * as authorizeMiddleware from '../../middlewares/authorize.middleware';
 import * as authMiddleware from '../../middlewares/auth.middleware';
 import categoryRoutes from './category.route';
 import userRoutes from './user.route';
+import documentRoutes from './document.route';
 
 const router = Router();
 
@@ -13,6 +14,8 @@ router.use(authorizeMiddleware.requirePermission);
 router.use('/category', categoryRoutes);
 
 router.use('/user', userRoutes);
+
+router.use('/document', documentRoutes);
 
 export default router;
 
