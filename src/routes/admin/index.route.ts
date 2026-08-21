@@ -14,11 +14,11 @@ router.use(authorizeMiddleware.requirePermission);
 
 router.use('/category', categoryRoutes);
 
-router.use('/user', userRoutes);
+router.use('/users', userRoutes);
 
-router.use('/document', documentRoutes);
+router.use('/documents', documentRoutes);
 
-router.use('/review', reviewRoutes);
+router.use('/reviews', reviewRoutes);
 
 export default router;
 
