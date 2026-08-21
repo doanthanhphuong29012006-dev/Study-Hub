@@ -10,8 +10,8 @@ export const updateInfoUser = async (userId: string, fullName?: string, avatar?:
     await userRepository.updateInfoUserById(userId, fullName, avatar);
 }
 
-export const getMyDocument = async (userId: string) => {
-    const documents = await userRepository.getMyDocument(userId);
+export const getMyDocument = async (userId: string, page: number, limit: number) => {
+    const { documents, pagination } = await userRepository.getMyDocument(userId, page, limit);
 
-    return documents;
+    return { documents, pagination };
 }

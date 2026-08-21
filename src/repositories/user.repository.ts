@@ -1,4 +1,5 @@
-import pool from "../config/database"
+import pool from "../config/database";
+import * as helpers from '../helpers/pagination.helper';
 
 export const getUserByEmail = async (email: string) => {
     const result = await pool.query('SELECT * from users WHERE email = $1',
@@ -68,8 +69,10 @@ export const updateInfoUserById = async (userId: string, fullName?: string, avat
     }
 }
 
-export const getMyDocument = async (userId: string) => {
-    const documents = await pool.query(`
+export const getMyDocument = async (userId: string, page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+
+    const query = `
         SELECT d.*,
             c.name AS category_title, 
             COUNT (r.id) AS review_count,
@@ -80,9 +83,22 @@ export const getMyDocument = async (userId: string) => {
         WHERE d.uploader_id = $1
         GROUP BY d.id, c.name
         ORDER BY d.created_at DESC
-        `, 
-        [userId]
-    );
+        OFFSET $2 LIMIT $3
+        `;
 
-    return documents.rows;
+    const countQuery = 'SELECT COUNT(id) FROM documents WHERE uploader_id = $1';
+
+    const [documentsQuery, totalCountQuery] = await Promise.all([
+        pool.query(query, [userId, skip, limit]),
+        pool.query(countQuery, [userId])
+    ]);
+
+    const totalCount = parseInt(totalCountQuery.rows[0].count);
+    
+    const pagination = helpers.pagination(page, limit, totalCount);
+
+    return {
+        documents: documentsQuery.rows,
+        pagination: pagination
+    };
 }

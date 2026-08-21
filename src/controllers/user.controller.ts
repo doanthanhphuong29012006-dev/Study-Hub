@@ -59,11 +59,15 @@ export const getMyDocument = async (req: Request, res: Response) => {
     try {
         const userId = req.user.id;
 
-        const documents = await userService.getMyDocument(userId);
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const { documents, pagination } = await userService.getMyDocument(userId, page, limit);
 
         res.status(200).json({
             message: "Lấy tài liệu đã đăng thành công!",
-            documents: documents
+            documents: documents,
+            pagination: pagination
         });
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình lấy tài liệu đã đăng:', error);
