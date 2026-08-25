@@ -94,23 +94,22 @@ StudyHub
     ├── tsconfig.json
     └── yarn.lock
 
-Local Setup
-Clone the repository:
+## Local Setup
 
-Bash
-git clone https://github.com/doanthanhphuong29012006-dev/StudyHub-Backend.git
-Install all dependencies:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/doanthanhphuong29012006-dev/StudyHub-Backend.git
+2. Install all dependencies:
+   ```bash
+   yarn install
+3. Start the development server:
+   ```bash
+   yarn dev
 
-Bash
-yarn install
-Start the development server:
+## Environment Variables
 
-Bash
-yarn dev
-Environment Variables
 Create a .env file in the root directory and configure the following required parameters:
-
-Plaintext
+```Plaintext
 PORT=1234
 NODE_ENV=development
 DB_URI=your_postgresql_connection_string
