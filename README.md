@@ -93,7 +93,7 @@ StudyHub
     ├── package.json
     ├── tsconfig.json
     └── yarn.lock
-
+```
 ## Local Setup
 
 1. Clone the repository:
@@ -111,7 +111,14 @@ StudyHub
 Create a .env file in the root directory and configure the following required parameters:
 ```Plaintext
 PORT=1234
-NODE_ENV=development
-DB_URI=your_postgresql_connection_string
-ROUTE_ADMIN=your_secret_admin_path
-CLOUDINARY_URL=your_cloudinary_api_key
+ROUTE_ADMIN=admin
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_PASSWORD=your_database_password
+DB_PORT=5432
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=developer
+CLOUDINARY_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
