@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 1234;
 
 // CORS configuare
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://payt-chia-se-tai-lieu.vercel.app"],
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
