@@ -1,24 +1,23 @@
-StudyHub - Backend API
+# StudyHub - Backend API
+
 A robust RESTful API providing the core infrastructure for StudyHub, a comprehensive platform for sharing and managing academic documents.
 
-Core Features
-Authentication & Authorization: Secure user authentication using JWT and HttpOnly cookies, combined with strict Role-Based Access Control (Admin vs. Student).
+## Core Features
 
-Document Management: Full lifecycle handling of academic materials including secure uploads, administrative approval workflows, and view/download tracking.
+*   **Authentication & Authorization:** Secure user authentication using JWT and HttpOnly cookies, combined with strict Role-Based Access Control (Admin vs. Student).
+*   **Document Management:** Full lifecycle handling of academic materials including secure uploads, administrative approval workflows, and view/download tracking.
+*   **Community & Admin:** Integrated review system allowing users to rate and comment on documents, alongside a dedicated administrative dashboard for global moderation.
+*   **Security & Optimization:** Engineered with strict rate-limiting to prevent abuse, comprehensive Joi payload validation, and concurrent database queries for high performance.
 
-Community & Admin: Integrated review system allowing users to rate and comment on documents, alongside a dedicated administrative dashboard for global moderation.
+## Tech Stack
 
-Security & Optimization: Engineered with strict rate-limiting to prevent abuse, comprehensive Joi payload validation, and concurrent database queries for high performance.
+*   **Core:** Node.js, Express.js, TypeScript
+*   **Database:** PostgreSQL (optimized with raw SQL queries)
+*   **Cloud & Security:** Cloudinary (file storage), Joi (validation), express-rate-limit
 
-Tech Stack
-Core: Node.js, Express.js, TypeScript
+## Folder Structure
 
-Database: PostgreSQL (optimized with raw SQL queries)
-
-Cloud & Security: Cloudinary (file storage), Joi (validation), express-rate-limit
-
-Folder Structure
-Plaintext
+```text
 StudyHub
 └── backend
     ├── node_modules
@@ -94,6 +93,7 @@ StudyHub
     ├── package.json
     ├── tsconfig.json
     └── yarn.lock
+
 Local Setup
 Clone the repository:
 
