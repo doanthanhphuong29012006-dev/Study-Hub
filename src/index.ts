@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { globalLimiter } from './middlewares/rate-limit.middleware';
 import cookieParser from 'cookie-parser';
 import routes from './routes/index.route';
 import adminRoutes from './routes/admin/index.route';
@@ -20,6 +21,10 @@ app.use(cors({
 app.use(express.json());
 
 app.use(cookieParser());
+
+app.set('trust proxy', 1);
+
+app.use(globalLimiter);
 
 // Thiết lập đường dẫn
 app.use('/', routes);
