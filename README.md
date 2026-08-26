@@ -1,24 +1,23 @@
-StudyHub - Backend API
+# StudyHub - Backend API
+
 A robust RESTful API providing the core infrastructure for StudyHub, a comprehensive platform for sharing and managing academic documents.
 
-Core Features
-Authentication & Authorization: Secure user authentication using JWT and HttpOnly cookies, combined with strict Role-Based Access Control (Admin vs. Student).
+## Core Features
 
-Document Management: Full lifecycle handling of academic materials including secure uploads, administrative approval workflows, and view/download tracking.
+*   **Authentication & Authorization:** Secure user authentication using JWT and HttpOnly cookies, combined with strict Role-Based Access Control (Admin vs. Student).
+*   **Document Management:** Full lifecycle handling of academic materials including secure uploads, administrative approval workflows, and view/download tracking.
+*   **Community & Admin:** Integrated review system allowing users to rate and comment on documents, alongside a dedicated administrative dashboard for global moderation.
+*   **Security & Optimization:** Engineered with strict rate-limiting to prevent abuse, comprehensive Joi payload validation, and concurrent database queries for high performance.
 
-Community & Admin: Integrated review system allowing users to rate and comment on documents, alongside a dedicated administrative dashboard for global moderation.
+## Tech Stack
 
-Security & Optimization: Engineered with strict rate-limiting to prevent abuse, comprehensive Joi payload validation, and concurrent database queries for high performance.
+*   **Core:** Node.js, Express.js, TypeScript
+*   **Database:** PostgreSQL (optimized with raw SQL queries)
+*   **Cloud & Security:** Cloudinary (file storage), Joi (validation), express-rate-limit
 
-Tech Stack
-Core: Node.js, Express.js, TypeScript
+## Folder Structure
 
-Database: PostgreSQL (optimized with raw SQL queries)
-
-Cloud & Security: Cloudinary (file storage), Joi (validation), express-rate-limit
-
-Folder Structure
-Plaintext
+```text
 StudyHub
 └── backend
     ├── node_modules
@@ -94,25 +93,32 @@ StudyHub
     ├── package.json
     ├── tsconfig.json
     └── yarn.lock
-Local Setup
-Clone the repository:
+```
+## Local Setup
 
-Bash
-git clone https://github.com/doanthanhphuong29012006-dev/StudyHub-Backend.git
-Install all dependencies:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/doanthanhphuong29012006-dev/StudyHub-Backend.git
+2. Install all dependencies:
+   ```bash
+   yarn install
+3. Start the development server:
+   ```bash
+   yarn dev
 
-Bash
-yarn install
-Start the development server:
+## Environment Variables
 
-Bash
-yarn dev
-Environment Variables
 Create a .env file in the root directory and configure the following required parameters:
-
-Plaintext
+```Plaintext
 PORT=1234
-NODE_ENV=development
-DB_URI=your_postgresql_connection_string
-ROUTE_ADMIN=your_secret_admin_path
-CLOUDINARY_URL=your_cloudinary_api_key
+ROUTE_ADMIN=admin
+DB_USER=postgres
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_PASSWORD=your_database_password
+DB_PORT=5432
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=developer
+CLOUDINARY_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
