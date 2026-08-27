@@ -8,11 +8,13 @@ export const getInfoUser = async (req: Request, res: Response) => {
 
         const data = await userService.getInfoUser(userId);
 
+        const role = req.user.role;
+
         res.status(200).json({
             message: "Lấy thông tin người dùng thành công!",
-            data: data
-
-        })
+            data: data,
+            role: role
+        });
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình lấy thông tin người dùng:', error);
 
