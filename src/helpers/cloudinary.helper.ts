@@ -14,8 +14,12 @@ cloudinary.config({
 // Tạo cấu hình lưu trữ trên Cloudinary
 export const storage= new CloudinaryStorage({
     cloudinary,
-    params: {
-        folder: 'studyhub_uploads',
-        resource_type: 'auto'
-    } as any
+    params: async (req, file) => {
+        const isImage = file.mimetype.startsWith('image/');
+
+        return {
+            folder: 'studyhub_documents',
+            resource_type: isImage ? 'auto' : 'raw' 
+        };
+    }
 });
