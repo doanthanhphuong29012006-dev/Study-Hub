@@ -52,7 +52,10 @@ export const createDocument = async (req: Request, res: Response) => {
 
         if (req.file && req.file.filename) {
             try {
-                await cloudinary.uploader.destroy(req.file.filename);
+                const isRaw = req.file.path.includes('/raw/upload/');
+                await cloudinary.uploader.destroy(req.file.filename, {
+                    resource_type: isRaw ? 'raw' : 'image'
+                });
                 console.log(`Đã xóa tệp tin rác trên Cloudinary: ${req.file.filename}`);
             } catch (cloudinaryError) {
                 console.error('Lỗi hệ thống khi tiến hành xóa tệp tin Cloudinary:', cloudinaryError);
@@ -170,9 +173,16 @@ export const deleteDocument = async (req: Request, res: Response) => {
             try {
                 const urlPart = fileUrl.split('/');
                 const fileNameWithExtension = urlPart[urlPart.length - 1];
-                const publicId = fileNameWithExtension.split('.')[0];
+                
+                const isRaw = fileUrl.includes('/raw/upload/');
+                
+                const publicId = isRaw 
+                    ? `studyhub_documents/${fileNameWithExtension}` 
+                    : `studyhub_documents/${fileNameWithExtension.split('.')[0]}`;
 
-                await cloudinary.uploader.destroy(publicId);
+                await cloudinary.uploader.destroy(publicId, {
+                    resource_type: isRaw ? 'raw' : 'image'
+                });
                 console.log(`Đã dọn file trên cloudinary: ${publicId}`)
             } catch (cloudErr) {
                 console.error("Lỗi khi xóa file trên Cloudinary:", cloudErr);
