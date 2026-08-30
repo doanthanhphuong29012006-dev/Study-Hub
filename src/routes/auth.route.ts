@@ -7,6 +7,7 @@ const router = Router();
 
 router.post(
     '/register',
+    registerLimiter,
     authValidate.registerValidation,
     authController.register
 );
@@ -18,6 +19,6 @@ router.post(
     authController.login
 );
 
-router.post('/logout', registerLimiter, authController.logout);
+router.post('/logout', authController.logout);
 
 export default router;

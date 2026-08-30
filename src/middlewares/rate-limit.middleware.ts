@@ -23,6 +23,7 @@ export const authLimiter = rateLimit({
 export const registerLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
+    skipSuccessfulRequests: true,
     message: {
         message: "Bạn đã tạo quá nhiều tài khoản. Vui lòng quay lại sau!"
     },
