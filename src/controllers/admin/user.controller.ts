@@ -3,12 +3,16 @@ import * as userService from '../../services/admin/user.service';
 
 export const getAllUser = async (req: Request, res: Response) => {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
+        const page = (parseInt(req.query.page as string) > 0 ? parseInt(req.query.page as string) : 1) || 1;
+        let safeLimit = (parseInt(req.query.limit as string) > 0 ? parseInt(req.query.limit as string) : 10) || 10;
+
+        if (safeLimit > 100) {
+            safeLimit = 100;
+        }
 
         const email = req.query.email;
 
-        const { users, pagination } = await userService.getAllUser(page, limit, email as string);
+        const { users, pagination } = await userService.getAllUser(page, safeLimit, email as string);
 
         res.status(200).json({
             message: "Lấy tất cả người dùng thành công!",
