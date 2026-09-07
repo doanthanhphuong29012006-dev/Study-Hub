@@ -43,6 +43,12 @@ export const login = async (req: Request, res: Response) => {
 
         });
     } catch (error: any) {
+        if (error.message === "Account_Not_Active") {
+            return res.status(403).json({
+                message: "Tài khoản đã bị khóa"
+            })
+        }
+
         if (error.message === "Login_Error") {
             return res.status(401).json({
                 message: "Email hoặc mật khẩu không chính xác."

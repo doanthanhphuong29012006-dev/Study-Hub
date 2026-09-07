@@ -35,6 +35,10 @@ export const verifyLogin = async (email: string, password: string) => {
         role: user.role
     }
 
+    if (user.status !== 'active') {
+        throw new Error("Account_Not_Active");
+    }
+
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
         expiresIn: '1d'
     });
