@@ -183,6 +183,10 @@ export const updateDocumentById = async (
     const values: any[] = [];
     let paramsIdx = 1;
 
+    updates.push(`status = $${paramsIdx}`);
+    values.push("pending");
+    paramsIdx++;
+
     if (title !== undefined) {
         updates.push(`title = $${paramsIdx}`);
         values.push(title);
