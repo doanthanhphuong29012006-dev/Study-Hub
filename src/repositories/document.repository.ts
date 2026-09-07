@@ -9,7 +9,9 @@ export const findAllDocument = async (
     order?: any
 ) => {
     let query = `
-        SELECT d.*, 
+        SELECT d.id, d.title, d.description, d.file_type, d.file_size, 
+            d.uploader_id, d.category_id, d.status, d.created_at, d.updated_at,
+            d.view_count, d.download_count, 
             COUNT(r.id) AS review_count,
             COALESCE(ROUND(AVG(r.rating), 1), 0) AS average_rating
         FROM documents d
@@ -119,6 +121,7 @@ export const findDocumentById = async (documentId: string) => {
             UPDATE documents
             SET view_count = view_count + 1
             WHERE id = $1
+            AND status = $2
             RETURNING *
         )
         SELECT d.*,
@@ -133,7 +136,7 @@ export const findDocumentById = async (documentId: string) => {
         LEFT JOIN users u ON d.uploader_id = u.id
         LEFT JOIN categories c ON d.category_id = c.id
     `;
-    const result = await pool.query(query, [documentId]);
+    const result = await pool.query(query, [documentId, "approved"]);
 
     if (result.rows.length === 0) {
         throw new Error("Document_Not_Found");
