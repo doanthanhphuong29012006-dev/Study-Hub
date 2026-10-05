@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import routes from './routes/index.route';
 import adminRoutes from './routes/admin/index.route';
 import { connectDB } from './config/database';
+import { redisConnect } from './config/redis';
 
 const app = express();
 const PORT = process.env.PORT || 1234;
@@ -30,7 +31,21 @@ app.use(globalLimiter);
 app.use('/', routes);
 app.use(`/${process.env.ROUTE_ADMIN}`, adminRoutes);
 
-app.listen(PORT, async () => {
+const startServer = async () => {
+  try {
     await connectDB();
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+    await redisConnect();
+
+    app.listen(PORT, async () => {
+      await connectDB();
+      await redisConnect();
+
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+      console.error("Lỗi trong quá trình khởi động hệ thống:", error);
+      process.exit(1);
+    }
+};
+
+startServer();

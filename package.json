@@ -16,7 +16,8 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "redis": "^6.3.0"
   },
   "scripts": {
     "start": "tsx watch src/index.ts"
