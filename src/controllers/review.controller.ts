@@ -17,6 +17,24 @@ export const createReview = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình tạo đánh giá:', error);
 
+        if (error.message === "Document_Not_Found") {
+            return res.status(404).json({
+                message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        if (error.message === "Cannot_Review_Own_Document") {
+            return res.status(403).json({
+                message: 'Hệ thống không cho phép tự đánh giá tài liệu của chính mình!'
+            });
+        }
+
+        if (error.message === "Document_Not_Allow") {
+            return res.status(403).json({
+                message: 'Bạn không có quyền truy cập tài liệu này!'
+            });
+        }
+
         if (error.code === '23503') {
             return res.status(404).json({ 
                 message: "Tài liệu hoặc người dùng không tồn tại trong hệ thống!" 

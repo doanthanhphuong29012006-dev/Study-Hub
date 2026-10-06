@@ -2,6 +2,18 @@ import pool from "../config/database";
 import * as helpers from "../helpers/pagination.helper";
 
 export const createNewReview = async (rating: number, comment: string, userId: string, documentId: string) => {
+    const documentQuery = await pool.query('SELECT status, uploader_id FROM documents WHERE id = $1', [documentId]);
+
+    const doc = documentQuery.rows[0];
+
+    if (doc.status !== 'approved') {
+        throw new Error("Document_Not_Allow");
+    }
+
+    if (doc.uploader_id === userId) {
+        throw new Error("Cannot_Review_Own_Document");
+    }
+
     await pool.query(`
             INSERT INTO reviews (rating, comment, user_id, document_id)
             VALUES ($1, $2, $3, $4)
