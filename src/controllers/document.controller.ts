@@ -124,6 +124,12 @@ export const downloadDocument = async (req: Request, res: Response) => {
             });
         }
 
+        if (error.message === "Document_Not_Allow") {
+            return res.status(403).json({
+                message: 'Bạn không có quyền truy cập tài liệu này!'
+            });
+        }
+
         return res.status(500).json({
             message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
         });

@@ -145,6 +145,16 @@ export const findDocumentById = async (documentId: string) => {
 }
 
 export const increaseDocumentDownloadCount = async (documentId: string) => {
+    const documentStatus = await pool.query('SELECT status FROM documents WHERE id = $1', [documentId]);
+    
+    if (documentStatus.rows.length === 0) {
+        throw new Error("Document_Not_Found");
+    }
+
+    if (documentStatus.rows[0].status !== 'approved') {
+        throw new Error("Document_Not_Allow");
+    }
+
     const query = `
         UPDATE documents
         SET download_count = download_count + 1
