@@ -4,6 +4,10 @@ import * as helpers from "../helpers/pagination.helper";
 export const createNewReview = async (rating: number, comment: string, userId: string, documentId: string) => {
     const documentQuery = await pool.query('SELECT status, uploader_id FROM documents WHERE id = $1', [documentId]);
 
+    if (documentQuery.rowCount === 0) {
+        throw new Error("Document_Not_Found");
+    }
+
     const doc = documentQuery.rows[0];
 
     if (doc.status !== 'approved') {
