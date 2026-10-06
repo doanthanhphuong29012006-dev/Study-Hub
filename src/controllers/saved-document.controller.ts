@@ -15,6 +15,18 @@ export const saveDocument = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình lưu tài liệu:', error);
 
+        if (error.message === "Document_Not_Found") {
+            return res.status(404).json({
+                message: 'Tài liệu không tồn tại hoặc đã bị xóa.'
+            });
+        }
+
+        if (error.message === 'Document_Not_Allow') {
+            return res.status(403).json({
+                message: 'Bạn không có quyền truy cập tài liệu này!'
+            });
+        }
+
         if (error.code === '23503') {
             return res.status(404).json({ 
                 message: "Tài liệu hoặc người dùng không tồn tại trong hệ thống!" 
