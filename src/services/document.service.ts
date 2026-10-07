@@ -30,8 +30,8 @@ export const createDocument = async (
     await documentRepository.createNewDocument(fileUrl, fileSize, fileType, title, description, categoryId, userId);
 }
 
-export const getDetailDocument = async (documentId: string) => {
-    const document = await documentRepository.findDocumentById(documentId);
+export const getDetailDocument = async (documentId: string, userId: string, userRole: string) => {
+    const document = await documentRepository.findDocumentById(documentId, userId, userRole);
     return document;
 }
 

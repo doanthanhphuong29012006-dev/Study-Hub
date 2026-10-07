@@ -83,7 +83,11 @@ export const createDocument = async (req: Request, res: Response) => {
 export const getDetailDocument = async (req: Request, res: Response) => {
     try {
         const documentId = req.params.id;
-        const document = await documentService.getDetailDocument(documentId as string);
+
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        const document = await documentService.getDetailDocument(documentId as string, userId, userRole);
 
         res.status(200).json({
             message: "Lấy chi tiết tài liệu thành công",

@@ -115,33 +115,41 @@ export const createNewDocument = async (
         `, [fileUrl, fileSize, fileType, title, description, categoryId, userId]);
 }
 
-export const findDocumentById = async (documentId: string) => {
+export const findDocumentById = async (documentId: string, userId: string, userRole: string) => {
     const query = `
-        WITH update_doc AS (
-            UPDATE documents
-            SET view_count = view_count + 1
-            WHERE id = $1
-            AND status = $2
-            RETURNING *
-        )
         SELECT d.*,
             u.full_name AS uploader_name,
             u.avatar AS uploader_avatar,
             c.name AS category_title,
-
             COALESCE((SELECT COUNT(id) FROM reviews WHERE document_id = d.id), 0) AS review_count,
-
             COALESCE((SELECT ROUND(AVG(rating), 1) FROM reviews WHERE document_id = d.id), 0) AS average_rating
         FROM update_doc d
         LEFT JOIN users u ON d.uploader_id = u.id
         LEFT JOIN categories c ON d.category_id = c.id
+        WHERE d.id = $1
     `;
-    const result = await pool.query(query, [documentId, "approved"]);
+    const result = await pool.query(query, [documentId]);
 
     if (result.rows.length === 0) {
         throw new Error("Document_Not_Found");
     }
-    return result.rows[0];
+
+    const doc = result.rows[0];
+
+    const isApproved = doc.status === 'approved';
+    const isOwner = doc.uploader_id === userId;
+    const isAdmin = userRole === 'admin';
+
+    if (!isApproved && !isOwner && !isAdmin) {
+        throw new Error("Document_Not_Found");
+    }
+
+    if (isApproved && !isOwner && !isAdmin) {
+        await pool.query('UPDATE documents SET view_count = view_count + 1 WHERE id = $1', [documentId]);
+        doc.view_count += 1;
+    }
+
+    return doc;
 }
 
 export const increaseDocumentDownloadCount = async (documentId: string) => {
