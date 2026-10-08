@@ -13,6 +13,7 @@ export const globalLimiter = rateLimit({
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
+    skipSuccessfulRequests: true,
     message: {
         message: "Bạn đã đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút để bảo mật tài khoản!"
     },
@@ -23,7 +24,6 @@ export const authLimiter = rateLimit({
 export const registerLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
-    skipSuccessfulRequests: true,
     message: {
         message: "Bạn đã tạo quá nhiều tài khoản. Vui lòng quay lại sau!"
     },
