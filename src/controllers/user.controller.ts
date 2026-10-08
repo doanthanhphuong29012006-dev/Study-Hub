@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import fs from "fs";
 import * as userService from '../services/user.service';
 import { v2 as cloudinary } from "cloudinary";
 
@@ -31,31 +32,44 @@ export const getInfoUser = async (req: Request, res: Response) => {
 }
 
 export const updateInfoUser = async (req: Request, res: Response) => {
+    let cloudUploadResult: any = null;
+
     try {
         const userId = req.user.id;
-
         const { fullName } = req.body;
 
-        const newAvatarUrl = req.file ? req.file.path : undefined;
+        if (req.file) {
+            cloudUploadResult = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'studyhub_avatars',
+                resource_type: 'image'
+            });
+        }
 
-        if (newAvatarUrl) {
+        const newAvatarUrl = cloudUploadResult ? cloudUploadResult.secure_url : undefined;
+
+        const oldUser = await userService.getInfoUser(userId);
+        const oldAvatarUrl = oldUser.avatar;
+
+        await userService.updateInfoUser(userId, fullName, newAvatarUrl);
+
+        if (newAvatarUrl && oldAvatarUrl && oldAvatarUrl.includes("cloudinary.com")) {
             try {
-                const oldUser = await userService.getInfoUser(userId);
+                const urlParts = oldAvatarUrl.split('/');
+                const fileNameWithExtension = urlParts[urlParts.length - 1];
+                const fileName = fileNameWithExtension.split('.')[0];
+                
+                const publicId = `studyhub_avatars/${fileName}`;
 
-                if (oldUser.avatar && oldUser.avatar.includes('cloudinary.com')) {
-                    const urlParts = oldUser.avatar.split('/');
-                    const fileNameWithExtension = urlParts[urlParts.length - 1];
-                    const publicId = fileNameWithExtension.split('.')[0];
-
-                    await cloudinary.uploader.destroy(publicId);
-                    console.log(`Đã dọn dẹp avatar cũ trên Cloudinary: ${publicId}`);
-                }
+                await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+                console.log(`Đã dọn dẹp avatar cũ trên Cloudinary: ${publicId}`);
             } catch (err) {
                 console.error("Lỗi trong quá trình dọn dẹp ảnh cũ:", err);
             }
         }
 
-        await userService.updateInfoUser(userId, fullName, newAvatarUrl);
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
 
         res.status(200).json({
             message: "Cập nhật thông tin người dùng thành công!"
@@ -63,10 +77,14 @@ export const updateInfoUser = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình cập nhật thông tin người dùng:', error);
 
-        if (req.file && req.file.filename) {
-            cloudinary.uploader.destroy(req.file.filename).catch(err => 
-                console.error("Lỗi xóa ảnh rác (do db lỗi):", err)
+        if (cloudUploadResult) {
+            cloudinary.uploader.destroy(cloudUploadResult.public_id, { resource_type: 'image' }).catch(err => 
+                console.error("Lỗi xóa ảnh rollback (do db lỗi):", err)
             );
+        }
+        
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
         }
 
         if (error.message === "User_Not_Found") {
