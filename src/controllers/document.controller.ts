@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 import * as documentService from '../services/document.service';
 
 export const getAllDocument = async (req: Request, res: Response) => {
@@ -32,20 +33,37 @@ export const getAllDocument = async (req: Request, res: Response) => {
 }
 
 export const createDocument = async (req: Request, res: Response) => {
+    let cloudUploadResult: any = null;
+
     try {
         if (!req.file) {
             return res.status(400).json({ message: "Vui lòng đính kèm tệp tin!" });
         }
 
         const userId = req.user.id;
+        const { title, description, categoryId } = req.body;
 
-        const fileUrl = req.file.path;
+        const isImage = req.file.mimetype.startsWith('image/');
+        const ext = req.file.originalname.split('.').pop();
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const publicId = isImage ? uniqueName : `${uniqueName}.${ext}`;
+
+        //Thực hiện tải file từ vùng tạm lên cloudinary
+        cloudUploadResult = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'studyhub_documents',
+            resource_type: isImage ? 'auto' : 'raw',
+            public_id: publicId
+        });
+
+        const fileUrl = cloudUploadResult.secure_url;
         const fileSize = req.file.size;
         const fileType = req.file.mimetype;
 
-        const { title, description, categoryId } = req.body;
-
         await documentService.createDocument(fileUrl, fileSize, fileType, title, description, categoryId, userId);
+
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path)
+        };
 
         res.status(201).json({
             message: "Tải tài liệu lên thành công!",
@@ -54,16 +72,19 @@ export const createDocument = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Lỗi hệ thống trong quá trình tải tài liệu:', error);
 
-        if (req.file && req.file.filename) {
+        if (cloudUploadResult) {
             try {
-                const isRaw = req.file.path.includes('/raw/upload/');
-                await cloudinary.uploader.destroy(req.file.filename, {
+                const isRaw = cloudUploadResult.resource_type === 'raw';
+                await cloudinary.uploader.destroy(cloudUploadResult.public_id, {
                     resource_type: isRaw ? 'raw' : 'image'
                 });
-                console.log(`Đã xóa tệp tin rác trên Cloudinary: ${req.file.filename}`);
-            } catch (cloudinaryError) {
-                console.error('Lỗi hệ thống khi tiến hành xóa tệp tin Cloudinary:', cloudinaryError);
+            } catch (cloudErr) {
+                console.error("Lỗi xóa file rollback Cloudinary:", cloudErr);
             }
+        }
+
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
         }
 
         if (error.message === "Does_Not_Exist_User") {

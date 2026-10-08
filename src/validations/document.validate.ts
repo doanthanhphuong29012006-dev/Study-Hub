@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
+import fs from "fs";
 
 export const createDocumentValidation = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
@@ -27,6 +28,10 @@ export const createDocumentValidation = (req: Request, res: Response, next: Next
     const { error } = schema.validate(req.body);
 
     if (error) {
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+
         res.status(400).json({
             message: error.details[0].message
         });

@@ -5,7 +5,7 @@ import * as documentValidation from '../validations/document.validate';
 import * as reviewController from '../controllers/review.controller';
 import * as reviewValidation from '../validations/review.validate';
 import * as savedDocumentController from '../controllers/saved-document.controller';
-import { uploadMiddleware } from "../middlewares/upload.middleware";
+import { uploadDocumentMiddleware } from "../middlewares/upload.middleware";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router.get('/', documentController.getAllDocument);
 router.post(
     '/', 
     authMiddleware.requireAuth,
-    uploadMiddleware.single("file"),
+    uploadDocumentMiddleware,
     documentValidation.createDocumentValidation,
     documentController.createDocument
 );
