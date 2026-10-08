@@ -200,30 +200,38 @@ export const updateDocumentById = async (
     const updates: string[] = [];
     const values: any[] = [];
     let paramsIdx = 1;
-
-    updates.push(`status = $${paramsIdx}`);
-    values.push("pending");
-    paramsIdx++;
+    let hasChange = false;
 
     if (title !== undefined) {
         updates.push(`title = $${paramsIdx}`);
         values.push(title);
         paramsIdx++;
+        hasChange = true;
     }
 
     if (description !== undefined) {
         updates.push(`description = $${paramsIdx}`);
         values.push(description);
         paramsIdx++;
+        hasChange = true;
     }
 
     if (categoryId !== undefined) {
         updates.push(`category_id = $${paramsIdx}`);
         values.push(categoryId);
         paramsIdx++;
+        hasChange = true;
     }
 
-    if (updates.length === 0) return;
+    if (!hasChange) {
+        return;
+    }
+
+    if (hasChange && userRole !== 'admin') {
+        updates.push(`status = $${paramsIdx}`);
+        values.push('pending');
+        paramsIdx++;
+    }
 
     let query = `
         UPDATE documents
