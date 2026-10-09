@@ -3,16 +3,12 @@ import * as reviewService from '../../services/admin/review.service';
 
 export const getAllReviewsGlobal = async (req: Request, res: Response) => {
     try {
-        const page = (parseInt(req.query.page as string) > 0 ? parseInt(req.query.page as string) : 1) || 1;
-        let safeLimit = (parseInt(req.query.limit as string) > 0 ? parseInt(req.query.limit as string) : 10) || 10;
-
-        if (safeLimit > 100) {
-            safeLimit = 100;
-        }
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
 
         const keyword = req.query.keyword;
 
-        const { reviews, pagination } = await reviewService.getAllReviewsGlobal(page, safeLimit, keyword as string);
+        const { reviews, pagination } = await reviewService.getAllReviewsGlobal(page, limit, keyword as string);
 
         res.status(200).json({
             message: "Lấy tất cả đánh giá thành công!",

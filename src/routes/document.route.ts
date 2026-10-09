@@ -6,10 +6,15 @@ import * as reviewController from '../controllers/review.controller';
 import * as reviewValidation from '../validations/review.validate';
 import * as savedDocumentController from '../controllers/saved-document.controller';
 import { uploadDocumentMiddleware } from "../middlewares/upload.middleware";
+import { validatePagination } from "../validations/pagination.validate";
 
 const router = Router();
 
-router.get('/', documentController.getAllDocument);
+router.get(
+    '/', 
+    validatePagination,
+    documentController.getAllDocument
+);
 
 router.post(
     '/', 

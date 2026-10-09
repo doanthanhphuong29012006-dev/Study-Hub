@@ -3,12 +3,14 @@ import * as authMiddleware from '../middlewares/auth.middleware';
 import * as userController from '../controllers/user.controller';
 import * as savedDocumentController from '../controllers/saved-document.controller';
 import { uploadAvatarMiddleware } from "../middlewares/upload.middleware";
+import { validatePagination } from "../validations/pagination.validate";
 
 const router = Router();
 
 router.get(
     '/saved-document', 
     authMiddleware.requireAuth,
+    validatePagination,
     savedDocumentController.getDocumentUserSaved
 );
 
@@ -28,6 +30,7 @@ router.patch(
 router.get(
     '/my-documents', 
     authMiddleware.requireAuth,
+    validatePagination,
     userController.getMyDocument
 );
 
