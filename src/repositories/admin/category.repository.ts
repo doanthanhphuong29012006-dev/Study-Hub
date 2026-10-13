@@ -21,17 +21,45 @@ export const deleteCategoryById = async (categoryId: string) => {
     }
 }
 
-export const updateCategoryById = async (categoryId: string, name: string, slug: string, description: string) => {
+export const updateCategoryById = async (categoryId: string, name?: string, slug?: string, description?: string) => {
     const existCategory = await pool.query('SELECT * FROM categories WHERE id = $1', [categoryId]);
     if (existCategory.rowCount === 0) {
         throw Error("Category_Not_Found");
     }
 
-    await pool.query(`
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramsIdx = 1;
+
+    if (name !== undefined) {
+        updates.push(`name = $${paramsIdx}`);
+        values.push(name);
+        paramsIdx++;
+    }
+
+    if (slug !== undefined) {
+        updates.push(`slug = $${paramsIdx}`);
+        values.push(slug);
+        paramsIdx++;
+    }
+
+    if (description !== undefined) {
+        updates.push(`description = $${paramsIdx}`);
+        values.push(description);
+        paramsIdx++;
+    }
+
+    if (updates.length === 0) {
+        return;
+    }
+
+    values.push(categoryId);
+
+    const query = `
         UPDATE categories
-        SET name = COALESCE($1, name),
-            slug = COALESCE($2, slug),
-            description = COALESCE($3, description)
-        WHERE id = $4
-    `, [name || null, slug || null, description || null, categoryId]);
+        SET ${updates.join(', ')}
+        WHERE id = $${paramsIdx}
+    `;
+
+    await pool.query(query, values);
 }
