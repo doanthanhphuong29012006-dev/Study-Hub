@@ -6,6 +6,7 @@ import routes from './routes/index.route';
 import adminRoutes from './routes/admin/index.route';
 import { connectDB } from './config/database';
 import { redisConnect } from './config/redis';
+import { requireValidOrigin } from './middlewares/origin-check.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 1234;
@@ -14,7 +15,11 @@ const PORT = process.env.PORT || 1234;
 app.use(cors({
     origin: ["http://localhost:5173", "https://payt-chia-se-tai-lieu.vercel.app", "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app"],
     methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization',
+      'X-CSRF-Token'
+    ],
     credentials: true
 }));
 
@@ -24,6 +29,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.set('trust proxy', 1);
+
+app.use(requireValidOrigin)
 
 app.use(globalLimiter);
 
@@ -37,9 +44,6 @@ const startServer = async () => {
     await redisConnect();
 
     app.listen(PORT, async () => {
-      await connectDB();
-      await redisConnect();
-
       console.log(`Server running on http://localhost:${PORT}`);
     });
   } catch (error) {

@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
 import { createAccount, verifyLogin } from "../services/auth.service";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const tokenCookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' as const : 'lax' as const,
+    path: '/'
+}
+
 export const register = async (req: Request, res: Response) => {
     try {
         const { email, fullName, password } = req.body;
@@ -31,10 +40,8 @@ export const login = async (req: Request, res: Response) => {
         const { user, token } = await verifyLogin(email, password);
 
         res.cookie("token", token, {
-            maxAge: 1000 * 60 * 60 * 24,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production" ? true : false,
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            ...tokenCookieOptions,
+            maxAge: 1000 * 60 * 60 * 24
         });
 
         res.status(200).json({
@@ -64,11 +71,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
     try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production" ? true : false,
-            sameSite: 'none'
-        });
+        res.clearCookie("token", tokenCookieOptions);
         
         return res.status(200).json({
             message: "Đăng xuất thành công!"
