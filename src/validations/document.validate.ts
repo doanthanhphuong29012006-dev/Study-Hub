@@ -25,7 +25,7 @@ export const createDocumentValidation = (req: Request, res: Response, next: Next
             })
     });
 
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body);
 
     if (error) {
         if (req.file && fs.existsSync(req.file.path)) {
@@ -38,6 +38,8 @@ export const createDocumentValidation = (req: Request, res: Response, next: Next
 
         return;
     }
+
+    req.body = value;
 
     next();
 }

@@ -4,6 +4,7 @@ import Joi from "joi";
 export const createReviewValidation = (req: Request, res: Response, next: NextFunction) => {
     const schema = Joi.object({
         rating: Joi.number()
+            .integer()
             .required()
             .max(5)
             .min(1)
@@ -21,7 +22,7 @@ export const createReviewValidation = (req: Request, res: Response, next: NextFu
             })
     });
 
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body);
 
     if (error) {
         res.status(400).json({
@@ -30,6 +31,8 @@ export const createReviewValidation = (req: Request, res: Response, next: NextFu
 
         return;
     }
+
+    req.body = value;
 
     next();
 }

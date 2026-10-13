@@ -47,7 +47,7 @@ export const registerValidation = (req: Request, res: Response, next: NextFuncti
             })
     });
 
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body);
 
     if (error) {
         res.status(400).json({
@@ -56,6 +56,8 @@ export const registerValidation = (req: Request, res: Response, next: NextFuncti
 
         return;
     }
+
+    req.body = value;
 
     next();
 }
@@ -74,7 +76,7 @@ export const loginValidation = (req: Request, res: Response, next: NextFunction)
             })
     });
 
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body);
 
     if (error) {
         res.status(400).json({
@@ -83,6 +85,8 @@ export const loginValidation = (req: Request, res: Response, next: NextFunction)
 
         return;
     }
+
+    req.body = value;
 
     next();
 }
