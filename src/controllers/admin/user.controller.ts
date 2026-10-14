@@ -26,17 +26,18 @@ export const getAllUser = async (req: Request, res: Response) => {
 
 export const changeUserStatus = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id as string;
+        const targetUserId = (req.params.id as string).toLowerCase();
+        const actorId = (req.user.id as string).toLowerCase();
 
         const { status } = req.body;
 
-        if (req.user.id === userId) {
+        if (targetUserId === actorId) {
             return res.status(403).json({ 
                 message: "Hệ thống từ chối thao tác tự thay đổi trạng thái tài khoản cá nhân!" 
             });
         }
 
-        await userService.changeUserStatus(userId, status);
+        await userService.changeUserStatus(targetUserId, status, actorId);
 
         res.status(200).json({
             message: "Thay đổi trạng thái người dùng thành công!"
@@ -50,6 +51,12 @@ export const changeUserStatus = async (req: Request, res: Response) => {
             });
         }
 
+        if (error.message === "Self_Modification_Denied") {
+            return res.status(403).json({ 
+                message: "Hệ thống từ chối thao tác do vi phạm quyền (Tự thay đổi quyền/trạng thái)." 
+            });
+        }
+
         return res.status(500).json({
             message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
         });
@@ -58,17 +65,18 @@ export const changeUserStatus = async (req: Request, res: Response) => {
 
 export const changeUserRole = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id as string;
+        const targetUserId = (req.params.id as string).toLowerCase();
+        const actorId = (req.user.id as string).toLowerCase();
 
         const { role } = req.body;
 
-        if (req.user.id === userId) {
+        if (targetUserId === actorId) {
             return res.status(403).json({ 
                 message: "Hệ thống từ chối thao tác tự thay đổi quyền tài khoản cá nhân!" 
             });
         }
 
-        await userService.changeUserRole(userId, role);
+        await userService.changeUserRole(targetUserId, role, actorId);
 
         res.status(200).json({
             message: "Thay đổi quyền người dùng thành công!"
@@ -79,6 +87,12 @@ export const changeUserRole = async (req: Request, res: Response) => {
         if (error.message === "User_Not_Found") {
             return res.status(404).json({ 
                 message: "Người dùng không tồn tại!" 
+            });
+        }
+
+        if (error.message === "Self_Modification_Denied") {
+            return res.status(403).json({ 
+                message: "Hệ thống từ chối thao tác do vi phạm quyền (Tự thay đổi quyền/trạng thái)." 
             });
         }
 

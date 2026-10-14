@@ -49,24 +49,46 @@ export const getAllUser = async (limit: number, page: number, email: string) => 
     return { users, pagination };
 }
 
-export const changeUserStatusById = async (userId: string, status: string) => {
+export const changeUserStatusById = async (userId: string, status: string, actorId: string) => {
+    if (userId.toLowerCase() === actorId.toLowerCase()) {
+        throw Error("Self_Modification_Denied");
+    }
+
     const userQuery = await pool.query('SELECT status FROM users WHERE id = $1', [userId]);
     if (userQuery.rowCount === 0) {
         throw Error("User_Not_Found");
     }
 
     if (status !== userQuery.rows[0].status) {
-        await pool.query('UPDATE users SET status = $1 WHERE id = $2', [status, userId]);
+        const updateResult = await pool.query(
+            'UPDATE users SET status = $1 WHERE id = $2 AND id != $3', 
+            [status, userId, actorId]
+        );
+
+        if (updateResult.rowCount === 0) {
+            throw Error("Self_Modification_Denied");
+        }
     }
 }
 
-export const changeUserRoleById = async (userId: string, role: string) => {
+export const changeUserRoleById = async (userId: string, role: string, actorId: string) => {
+    if (userId.toLowerCase() === actorId.toLowerCase()) {
+        throw Error("Self_Modification_Denied");
+    }
+
     const userQuery = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
     if (userQuery.rowCount === 0) {
         throw Error("User_Not_Found");
     }
 
     if (role !== userQuery.rows[0].role) {
-        await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, userId]);
+        const updateResult = await pool.query(
+            'UPDATE users SET role = $1 WHERE id = $2 AND id != $3', 
+            [role, userId, actorId]
+        );
+
+        if (updateResult.rowCount === 0) {
+            throw Error("Self_Modification_Denied");
+        }
     }
 }

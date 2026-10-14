@@ -6,10 +6,10 @@ export const getAllUser = async (page: number, limit: number, email: string) => 
     return { users, pagination };
 }
 
-export const changeUserStatus = async (userId: string, status: string) => {
-    await userRepository.changeUserStatusById(userId, status);
+export const changeUserStatus = async (userId: string, status: string, actorId: string) => {
+    await userRepository.changeUserStatusById(userId, status, actorId);
 }
 
-export const changeUserRole = async (userId: string, role: string) => {
-    await userRepository.changeUserRoleById(userId, role);
+export const changeUserRole = async (userId: string, role: string, actorId: string) => {
+    await userRepository.changeUserRoleById(userId, role, actorId);
 }
