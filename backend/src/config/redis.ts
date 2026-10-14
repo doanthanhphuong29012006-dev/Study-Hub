@@ -18,12 +18,18 @@ redisClient.on('ready', () => {
 });
 
 export const redisConnect = async () => {
-    try {
-        if (!redisClient.isOpen) {
+    if (!redisClient.isReady) {
             await redisClient.connect();
-        }
-    } catch (error) {
-        console.error('Lỗi kết nối tới redis: ', error);
+    }
+
+    if (!redisClient.isReady) {
+        throw new Error("Redis isn't ready!");
+    }
+}
+
+export const redisClose = async () => {
+    if (redisClient.isOpen) {
+        await redisClient.quit();
     }
 }
 

@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import routes from './routes/index.route';
 import adminRoutes from './routes/admin/index.route';
 import pool, { connectDB } from './config/database';
-import { redisConnect } from './config/redis';
+import { redisConnect, redisClose } from './config/redis';
 import { requireValidOrigin } from './middlewares/origin-check.middleware';
 import { globalErrorHandler } from './middlewares/error.middleware';
 
@@ -67,6 +67,9 @@ const startServer = async () => {
                     // Ngắt kết nối Database pool an toàn
                     await pool.end();
                     console.log('Đã ngắt kết nối PostgreSQL.');
+
+                    await redisClose();
+                    console.log('Đã ngắt kết nối Redis.');
                     
                     console.log('Tạm biệt!');
                     process.exit(0);
