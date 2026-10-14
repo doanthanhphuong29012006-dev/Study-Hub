@@ -17,6 +17,7 @@
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.23.0",
+    "rate-limit-redis": "^6.0.1",
     "redis": "^6.3.0"
   },
   "scripts": {

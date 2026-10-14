@@ -1,4 +1,11 @@
 import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import redisClient from '../config/redis';
+
+// Khởi tạo cầu nối lưu trữ đồng bộ qua Redis
+const redisStore = new RedisStore({
+    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+});
 
 export const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -8,6 +15,7 @@ export const globalLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
+    store: redisStore,
 });
 
 export const authLimiter = rateLimit({
@@ -19,6 +27,7 @@ export const authLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
+    store: redisStore,
 });
 
 export const registerLimiter = rateLimit({
@@ -29,4 +38,5 @@ export const registerLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
+    store: redisStore,
 });
