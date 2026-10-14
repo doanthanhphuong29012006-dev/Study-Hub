@@ -123,7 +123,7 @@ export const findDocumentById = async (documentId: string, userId: string, userR
             c.name AS category_title,
             COALESCE((SELECT COUNT(id) FROM reviews WHERE document_id = d.id), 0) AS review_count,
             COALESCE((SELECT ROUND(AVG(rating), 1) FROM reviews WHERE document_id = d.id), 0) AS average_rating
-        FROM update_doc d
+        FROM documents d
         LEFT JOIN users u ON d.uploader_id = u.id
         LEFT JOIN categories c ON d.category_id = c.id
         WHERE d.id = $1
