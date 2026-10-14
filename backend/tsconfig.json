@@ -5,6 +5,9 @@
     "moduleResolution": "node16",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "strict": true
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmitOnError": true
   }
 }
