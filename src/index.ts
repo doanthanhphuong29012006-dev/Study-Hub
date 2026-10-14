@@ -4,7 +4,7 @@ import { globalLimiter } from './middlewares/rate-limit.middleware';
 import cookieParser from 'cookie-parser';
 import routes from './routes/index.route';
 import adminRoutes from './routes/admin/index.route';
-import { connectDB } from './config/database';
+import pool, { connectDB } from './config/database';
 import { redisConnect } from './config/redis';
 import { requireValidOrigin } from './middlewares/origin-check.middleware';
 import { globalErrorHandler } from './middlewares/error.middleware';
@@ -43,15 +43,53 @@ app.use(globalErrorHandler);
 
 const startServer = async () => {
   try {
-    await connectDB();
-    await redisConnect();
+        const requiredEnvs = ['PORT', 'JWT_SECRET', 'ROUTE_ADMIN', 'DB_USER', 'DB_PASSWORD'];
+        for (const env of requiredEnvs) {
+            if (!process.env[env]) {
+                throw new Error(`Thiếu biến môi trường quan trọng: ${env}`);
+            }
+        }
 
-    app.listen(PORT, async () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-      console.error("Lỗi trong quá trình khởi động hệ thống:", error);
-      process.exit(1);
+        await connectDB();
+        await redisConnect();
+
+        const server = app.listen(PORT, () => {
+            console.log(`Server đang chạy trên cổng ${PORT}`);
+        });
+
+        // Graceful Shutdown
+        const gracefulShutdown = async (signal: string) => {
+            console.log(`\nNhận tín hiệu ${signal}. Đang chuẩn bị dừng server...`);
+            
+            server.close(async () => {
+                console.log('Đã đóng kết nối HTTP.');
+                try {
+                    // Ngắt kết nối Database pool an toàn
+                    await pool.end();
+                    console.log('Đã ngắt kết nối PostgreSQL.');
+                    
+                    console.log('Tạm biệt!');
+                    process.exit(0);
+                } catch (err) {
+                    console.error('Lỗi trong quá trình ngắt kết nối:', err);
+                    process.exit(1);
+                }
+            });
+
+            // Ép tắt nếu quá trình dọn dẹp kéo dài quá 10 giây (Timeout)
+            setTimeout(() => {
+                console.error('Quá thời gian đóng an toàn. Buộc dừng server.');
+                process.exit(1);
+            }, 10000);
+        };
+
+        // Bắt các tín hiệu dừng từ Hệ điều hành / Docker
+        process.on('SIGTERM', () => gracefulShutdown('SIGTERM')); // Dừng từ hệ thống
+        process.on('SIGINT', () => gracefulShutdown('SIGINT'));   // Dừng khi bấm Ctrl+C
+
+    } catch (error) {
+        console.error("Khởi động hệ thống thất bại:", error);
+        process.exit(1); 
     }
 };
 
