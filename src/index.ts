@@ -7,6 +7,7 @@ import adminRoutes from './routes/admin/index.route';
 import { connectDB } from './config/database';
 import { redisConnect } from './config/redis';
 import { requireValidOrigin } from './middlewares/origin-check.middleware';
+import { globalErrorHandler } from './middlewares/error.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 1234;
@@ -37,6 +38,8 @@ app.use(globalLimiter);
 // Thiết lập đường dẫn
 app.use('/', routes);
 app.use(`/${process.env.ROUTE_ADMIN}`, adminRoutes);
+
+app.use(globalErrorHandler);
 
 const startServer = async () => {
   try {

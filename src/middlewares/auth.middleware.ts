@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import * as userRepository from '../repositories/user.repository';
 
 declare global {
@@ -43,7 +43,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 
         const id = decoded.userId;
 
-        const existUser = await userRepository.getUserByEmail(decoded.email);
+        const existUser = await userRepository.getUserById(id);
 
         if (existUser.rowCount === 0) {
             res.status(401).json({
@@ -68,8 +68,21 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         next();
     } catch (error) {
         console.error("Lỗi xác thực JWT:", error);
-        res.status(401).json({
-            message: "Tài khoản không chính xác hoặc phiên đăng nhập đã hết hạn!"
+        
+        if (error instanceof TokenExpiredError) {
+            return res.status(401).json({
+                message: "Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại."
+            });
+        }
+
+        if (error instanceof JsonWebTokenError) {
+            return res.status(401).json({
+                message: "Token xác thực không hợp lệ!"
+            });
+        }
+
+        return res.status(500).json({
+            message: "Đã xảy ra sự cố hệ thống. Vui lòng thử lại sau!"
         });
     }
 }
