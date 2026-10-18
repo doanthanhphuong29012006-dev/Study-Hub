@@ -1,9 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { globalLimiter } from './middlewares/rate-limit.middleware';
 import cookieParser from 'cookie-parser';
-import routes from './routes/index.route';
-import adminRoutes from './routes/admin/index.route';
 import pool, { connectDB } from './config/database';
 import { redisConnect, redisClose } from './config/redis';
 import { requireValidOrigin } from './middlewares/origin-check.middleware';
@@ -14,7 +11,12 @@ const PORT = process.env.PORT || 1234;
 
 // CORS configuare
 app.use(cors({
-    origin: ["http://localhost:5173", "https://payt-chia-se-tai-lieu.vercel.app", "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app"],
+    origin: [
+        "http://localhost:5173", 
+        "https://payt-chia-se-tai-lieu.vercel.app", 
+        "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app",
+        "http://localhost:8080"
+    ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: [
       'Content-Type', 
@@ -33,14 +35,6 @@ app.set('trust proxy', 1);
 
 app.use(requireValidOrigin)
 
-app.use(globalLimiter);
-
-// Thiết lập đường dẫn
-app.use('/', routes);
-app.use(`/${process.env.ROUTE_ADMIN}`, adminRoutes);
-
-app.use(globalErrorHandler);
-
 const startServer = async () => {
   try {
         const requiredEnvs = ['PORT', 'JWT_SECRET', 'ROUTE_ADMIN', 'DB_USER', 'DB_PASSWORD'];
@@ -52,6 +46,15 @@ const startServer = async () => {
 
         await connectDB();
         await redisConnect();
+
+        const { globalLimiter } = require("./middlewares/rate-limit.middleware");
+        const routes = require("./routes/index.route").default;
+        const adminRoutes = require("./routes/admin/index.route").default;
+
+        app.use(globalLimiter);
+        app.use("/", routes);
+        app.use(`/${process.env.ROUTE_ADMIN}`, adminRoutes);
+        app.use(globalErrorHandler);
 
         const server = app.listen(PORT, () => {
             console.log(`Server đang chạy trên cổng ${PORT}`);

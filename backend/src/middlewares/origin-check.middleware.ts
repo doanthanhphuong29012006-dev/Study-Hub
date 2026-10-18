@@ -8,7 +8,8 @@ export const requireValidOrigin = (req: Request, res: Response, next: NextFuncti
     const allowedOrigins = [
         "http://localhost:5173", 
         "https://payt-chia-se-tai-lieu.vercel.app", 
-        "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app"
+        "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app",
+        "http://localhost:8080"
     ];
 
     const origin = req.headers.origin;

@@ -3,7 +3,8 @@ import { RedisStore } from 'rate-limit-redis';
 import redisClient from '../config/redis';
 
 // Khởi tạo cầu nối lưu trữ đồng bộ qua Redis
-const redisStore = new RedisStore({
+const createredisStore = (prefix: string) => new RedisStore({
+    prefix,
     sendCommand: (...args: string[]) => redisClient.sendCommand(args),
 });
 
@@ -15,7 +16,7 @@ export const globalLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    store: redisStore,
+    store: createredisStore("rl:global:"),
 });
 
 export const authLimiter = rateLimit({
@@ -27,7 +28,7 @@ export const authLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    store: redisStore,
+    store: createredisStore("rl:auth:"),
 });
 
 export const registerLimiter = rateLimit({
@@ -38,5 +39,5 @@ export const registerLimiter = rateLimit({
     },
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    store: redisStore,
+    store: createredisStore("rl:register:"),
 });
