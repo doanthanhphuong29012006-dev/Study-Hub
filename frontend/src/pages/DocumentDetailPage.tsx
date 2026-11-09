@@ -262,7 +262,7 @@ export function DocumentDetailPage() {
         <div className="bamboo-detail-header__badges">
           <span className="bamboo-pill">
             <Icon name="leaf" size={14} />
-            <span>{document.category_title ?? 'Học liệu'}</span>
+            <span>{document.category_title ?? 'Tài liệu'}</span>
           </span>
           <StatusBadge value={document.status} />
         </div>
@@ -273,7 +273,7 @@ export function DocumentDetailPage() {
           <div className="bamboo-author-tag">
             <Avatar src={document.uploader_avatar} name={document.uploader_name ?? 'Thành viên'} size="sm" />
             <div className="bamboo-author-tag__info">
-              <span>Được chia sẻ bởi <strong>{document.uploader_name ?? 'Thành viên StudyHub'}</strong></span>
+              <span>Đăng bởi <strong>{document.uploader_name ?? 'Người dùng'}</strong></span>
               <small>{formatDate(document.created_at)}</small>
             </div>
           </div>
@@ -302,10 +302,10 @@ export function DocumentDetailPage() {
             <Icon name="download" size={18} />
             <span>
               {busy === 'download'
-                ? 'Đang chuẩn bị…'
+                ? 'Đang tải…'
                 : isLink
-                ? 'Mở liên kết tài liệu'
-                : 'Tải tài liệu về máy'}
+                ? 'Mở liên kết'
+                : 'Tải xuống'}
             </span>
           </button>
 
@@ -317,7 +317,7 @@ export function DocumentDetailPage() {
             aria-pressed={isSaved}
           >
             <Icon name={isSaved ? 'bookmark' : 'bookmark'} size={18} />
-            <span>{isSaved ? 'Đã lưu trong tủ sách' : 'Lưu vào tủ sách'}</span>
+            <span>{isSaved ? 'Đã lưu' : 'Lưu tài liệu'}</span>
           </button>
 
           {canManage && (
@@ -497,7 +497,7 @@ export function DocumentDetailPage() {
                   disabled={!!busy}
                 >
                   <Icon name="download" size={16} />
-                  <span>{busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết' : 'Tải tài liệu về'}</span>
+                  <span>{busy === 'download' ? 'Đang tải…' : isLink ? 'Mở liên kết' : 'Tải xuống'}</span>
                 </button>
               </div>
             )}
@@ -505,19 +505,19 @@ export function DocumentDetailPage() {
 
           {/* Description Section */}
           <section className="bamboo-content-section">
-            <h2 className="bamboo-content-section__heading">Giới thiệu & Ghi chú tài liệu</h2>
+            <h2 className="bamboo-content-section__heading">Mô tả tài liệu</h2>
             <div className="bamboo-description-text">
-              {document.description || 'Người chia sẻ chưa thêm mô tả chi tiết cho tài liệu này.'}
+              {document.description || 'Chưa có mô tả cho tài liệu này.'}
             </div>
           </section>
 
-          {/* Reviews & Community Rating Section */}
+          {/* Reviews Section */}
           <section className="bamboo-content-section">
             <div className="bamboo-reviews-header">
               <div>
-                <h2 className="bamboo-content-section__heading">Đánh giá từ cộng đồng</h2>
+                <h2 className="bamboo-content-section__heading">Đánh giá</h2>
                 <p className="bamboo-reviews-header__count">
-                  {document.review_count ?? reviews.length} lượt đánh giá từ người học
+                  {document.review_count ?? reviews.length} lượt đánh giá
                 </p>
               </div>
 
@@ -530,7 +530,7 @@ export function DocumentDetailPage() {
 
             {/* Review Input Box */}
             <form className="bamboo-review-form" onSubmit={submitReview}>
-              <h3>{editingReview ? 'Chỉnh sửa đánh giá của bạn' : 'Gửi nhận xét của bạn'}</h3>
+              <h3>{editingReview ? 'Chỉnh sửa đánh giá' : 'Viết đánh giá'}</h3>
 
               <div className="bamboo-star-picker" role="radiogroup" aria-label="Chọn số sao đánh giá">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -544,12 +544,7 @@ export function DocumentDetailPage() {
                     <Icon name="star" size={22} />
                   </button>
                 ))}
-                <span className="bamboo-star-picker__label">
-                  {reviewForm.rating === 5 && 'Tuyệt vời, tài liệu rất hữu ích!'}
-                  {reviewForm.rating === 4 && 'Rất tốt, nội dung đầy đủ.'}
-                  {reviewForm.rating === 3 && 'Bình thường, có thể cải thiện.'}
-                  {reviewForm.rating <= 2 && 'Cần hoàn thiện thêm.'}
-                </span>
+                <span className="bamboo-star-picker__label">{reviewForm.rating} sao</span>
               </div>
 
               <div className="bamboo-field">
@@ -557,7 +552,7 @@ export function DocumentDetailPage() {
                   rows={3}
                   value={reviewForm.comment}
                   onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                  placeholder="Chia sẻ cảm nhận, lời cảm ơn hoặc lưu ý dành cho người học khác…"
+                  placeholder="Nhập nhận xét của bạn về tài liệu…"
                 />
               </div>
 
@@ -571,7 +566,7 @@ export function DocumentDetailPage() {
                       setReviewForm({ rating: 5, comment: '' });
                     }}
                   >
-                    Hủy sửa
+                    Hủy
                   </button>
                 ) : <span />}
 
@@ -581,7 +576,7 @@ export function DocumentDetailPage() {
                   disabled={busy === 'review'}
                 >
                   <Icon name="check" size={16} />
-                  <span>{busy === 'review' ? 'Đang gửi…' : editingReview ? 'Cập nhật nhận xét' : 'Gửi đánh giá'}</span>
+                  <span>{busy === 'review' ? 'Đang gửi…' : editingReview ? 'Cập nhật' : 'Gửi đánh giá'}</span>
                 </button>
               </div>
             </form>
@@ -657,12 +652,12 @@ export function DocumentDetailPage() {
           {/* Metadata Card */}
           <div className="bamboo-info-card">
             <h3 className="bamboo-info-card__title">
-              <Icon name="layers" size={16} /> Thông số học liệu
+              <Icon name="layers" size={16} /> Thông tin tài liệu
             </h3>
 
             <dl className="bamboo-meta-list">
               <div className="bamboo-meta-item">
-                <dt>Định dạng tệp</dt>
+                <dt>Định dạng</dt>
                 <dd>
                   <span className="bamboo-badge bamboo-badge--sm">{document.file_type || 'FILE'}</span>
                 </dd>
@@ -672,20 +667,20 @@ export function DocumentDetailPage() {
                 <dd>{isLink || Number(document.file_size) === 0 ? 'Trực tuyến' : formatFileSize(document.file_size)}</dd>
               </div>
               <div className="bamboo-meta-item">
-                <dt>Lượt tải xuống</dt>
+                <dt>Lượt tải</dt>
                 <dd>{document.download_count ?? 0} lần</dd>
               </div>
               <div className="bamboo-meta-item">
-                <dt>Lượt xem tài liệu</dt>
+                <dt>Lượt xem</dt>
                 <dd>{document.view_count ?? 0} lượt</dd>
               </div>
               <div className="bamboo-meta-item">
-                <dt>Ngày đăng tải</dt>
+                <dt>Ngày đăng</dt>
                 <dd>{formatDate(document.created_at)}</dd>
               </div>
               <div className="bamboo-meta-item">
                 <dt>Quyền truy cập</dt>
-                <dd className="bamboo-color--green">Công khai & Miễn phí</dd>
+                <dd className="bamboo-color--green">Miễn phí</dd>
               </div>
             </dl>
           </div>
@@ -695,10 +690,9 @@ export function DocumentDetailPage() {
             <div className="bamboo-trust-card__icon">
               <Icon name="shield" size={20} />
             </div>
-            <h4>Cam kết tri thức mở</h4>
+            <h4>Lưu ý</h4>
             <p>
-              Tài liệu được chia sẻ phi thương mại nhằm mục đích phục vụ cộng đồng học sinh, sinh
-              viên và nghiên cứu sinh. Hãy cùng bảo vệ sự trong sáng của học thuật.
+              Tài liệu do thành viên đóng góp phục vụ mục đích học tập và nghiên cứu cá nhân.
             </p>
           </div>
         </aside>

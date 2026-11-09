@@ -59,9 +59,9 @@ export function AdminReviewsPage() {
   return (
     <div className="bamboo-admin-page">
       <AdminTitle
-        eyebrow="Kiểm duyệt cộng đồng"
-        title="Đánh giá & Nhận xét"
-        description="Theo dõi chất lượng phản hồi và loại bỏ các bình luận tiêu cực hoặc vi phạm quy tắc."
+        eyebrow="Quản trị"
+        title="Quản lý đánh giá"
+        description="Quản lý và kiểm duyệt các đánh giá, bình luận trên hệ thống."
       />
 
       {/* Toolbar Filter */}
@@ -77,10 +77,10 @@ export function AdminReviewsPage() {
         <div className="bamboo-admin-search-field">
           <Icon name="search" size={18} />
           <input
-            aria-label="Tìm kiếm trong nội dung bình luận"
+            aria-label="Tìm kiếm nội dung đánh giá"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="Tìm theo nội dung bình luận hoặc phản hồi…"
+            placeholder="Tìm theo nội dung đánh giá…"
           />
         </div>
 
@@ -91,7 +91,7 @@ export function AdminReviewsPage() {
 
       {/* Review List */}
       {loading ? (
-        <PageLoader label="Đang tải danh sách phản hồi…" />
+        <PageLoader label="Đang tải danh sách đánh giá…" />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
       ) : reviews.length === 0 ? (
@@ -125,7 +125,7 @@ export function AdminReviewsPage() {
                 </header>
 
                 <p className="bamboo-admin-review-card__comment">
-                  {review.comment || <em>(Người học không để lại bình luận chữ)</em>}
+                  {review.comment || <em>(Không có nội dung bình luận)</em>}
                 </p>
 
                 <footer className="bamboo-admin-review-card__footer">
@@ -134,7 +134,7 @@ export function AdminReviewsPage() {
                     className="bamboo-admin-review-card__link"
                   >
                     <Icon name="file" size={14} />
-                    <span>{review.title ?? 'Mở trang tài liệu liên kết'}</span>
+                    <span>{review.title ?? 'Xem tài liệu'}</span>
                     <Icon name="arrow" size={13} />
                   </Link>
 
@@ -143,7 +143,7 @@ export function AdminReviewsPage() {
                     className="bamboo-btn bamboo-btn--ghost bamboo-btn--tiny bamboo-btn--danger-ghost"
                     onClick={() => setDeleteTarget(review)}
                   >
-                    <Icon name="trash" size={14} /> Xóa đánh giá này
+                    <Icon name="trash" size={14} /> Xóa đánh giá
                   </button>
                 </footer>
               </article>

@@ -85,9 +85,9 @@ export function AdminDocumentsPage() {
   return (
     <div className="bamboo-admin-page">
       <AdminTitle
-        eyebrow="Kiểm duyệt nội dung"
+        eyebrow="Quản trị"
         title="Quản lý tài liệu"
-        description="Phê duyệt, từ chối hoặc gỡ bỏ tài liệu trên toàn bộ nền tảng StudyHub."
+        description="Phê duyệt, từ chối hoặc gỡ bỏ tài liệu trên hệ thống."
       />
 
       {/* Toolbar Filter */}

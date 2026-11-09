@@ -42,7 +42,7 @@ export function LoginPage() {
   return (
     <AuthLayout
       title="Chào mừng trở lại"
-      subtitle="Đăng nhập để tiếp tục khám phá và chia sẻ tri thức cùng StudyHub."
+      subtitle="Đăng nhập vào tài khoản của bạn để tiếp tục."
     >
       <form className="bamboo-stack-form" onSubmit={submit} noValidate>
         {serverError && (
@@ -215,12 +215,12 @@ function AuthLayout({
 
         <div className="bamboo-auth-quote">
           <span className="bamboo-auth-quote__leaf">
-            <Icon name="leaf" size={32} />
+            <Icon name="book" size={32} />
           </span>
           <blockquote>
-            “Học vấn như thân tre đốt đốt vươn cao, rễ bám sâu vào nguồn cội sẻ chia.”
+            “Cùng nhau chia sẻ tài liệu và học tập hiệu quả hơn mỗi ngày.”
           </blockquote>
-          <span className="bamboo-auth-quote__author">— StudyHub Open Knowledge</span>
+          <span className="bamboo-auth-quote__author">— StudyHub Community</span>
         </div>
       </div>
 

@@ -14,17 +14,17 @@ export function AppShell() {
 
   const handleLogout = async () => {
     await logout();
-    notify('Bạn đã đăng xuất khỏi StudyHub.', 'success');
+    notify('Bạn đã đăng xuất.', 'success');
     navigate('/');
   };
 
   const nav = user
     ? [
-        { to: '/', label: 'Khám phá tri thức', icon: 'leaf' as const },
-        { to: '/saved', label: 'Tủ sách đã lưu', icon: 'bookmark' as const },
+        { to: '/', label: 'Khám phá', icon: 'leaf' as const },
+        { to: '/saved', label: 'Đã lưu', icon: 'bookmark' as const },
         { to: '/my-documents', label: 'Tài liệu của tôi', icon: 'folder' as const },
       ]
-    : [{ to: '/', label: 'Khám phá tri thức', icon: 'leaf' as const }];
+    : [{ to: '/', label: 'Khám phá', icon: 'leaf' as const }];
 
   return (
     <div className="bamboo-shell">
@@ -32,13 +32,10 @@ export function AppShell() {
         Bỏ qua điều hướng
       </a>
 
-      {/* Top Banner Accent - Bamboo Canopy Glow */}
-      <div className="bamboo-topbar-accent" aria-hidden="true" />
-
       {/* Main Site Header */}
       <header className="bamboo-header">
         <div className="container bamboo-header__inner">
-          <Link className="bamboo-brand" to="/" aria-label="StudyHub - Nền tảng học liệu mở">
+          <Link className="bamboo-brand" to="/" aria-label="StudyHub - Trang chủ">
             <span className="bamboo-brand__symbol">
               <Icon name="leaf" size={20} />
             </span>
@@ -46,7 +43,6 @@ export function AppShell() {
               <span className="bamboo-brand__title">
                 Study<strong>Hub</strong>
               </span>
-              <span className="bamboo-brand__tagline">Rừng tri thức mở</span>
             </div>
           </Link>
 
@@ -76,7 +72,7 @@ export function AppShell() {
                 <span className="bamboo-nav__icon">
                   <Icon name="settings" size={16} />
                 </span>
-                <span>Quản trị hệ thống</span>
+                <span>Quản trị</span>
                 <span className="bamboo-nav__sprout" aria-hidden="true" />
               </NavLink>
             )}
@@ -89,7 +85,7 @@ export function AppShell() {
                 <Link
                   className="bamboo-btn bamboo-btn--primary bamboo-btn--sm"
                   to="/upload"
-                  aria-label="Đăng tải tài liệu mới"
+                  aria-label="Đăng tài liệu"
                 >
                   <Icon name="upload" size={16} />
                   <span>Đăng tài liệu</span>
@@ -108,7 +104,7 @@ export function AppShell() {
                   type="button"
                   className="bamboo-icon-btn"
                   onClick={handleLogout}
-                  aria-label="Đăng xuất tài khoản"
+                  aria-label="Đăng xuất"
                   title="Đăng xuất"
                 >
                   <Icon name="logout" size={18} />
@@ -124,7 +120,7 @@ export function AppShell() {
                   Đăng nhập
                 </Link>
                 <Link className="bamboo-btn bamboo-btn--primary bamboo-btn--sm" to="/register">
-                  Tham gia cộng đồng
+                  Đăng ký
                 </Link>
               </>
             )}
@@ -165,7 +161,7 @@ export function AppShell() {
                   onClick={() => setOpen(false)}
                 >
                   <Icon name="settings" size={18} />
-                  <span>Quản trị hệ thống</span>
+                  <span>Quản trị</span>
                 </NavLink>
               )}
             </nav>
@@ -204,7 +200,7 @@ export function AppShell() {
                     to="/register"
                     onClick={() => setOpen(false)}
                   >
-                    Tạo tài khoản mới
+                    Đăng ký tài khoản
                   </Link>
                 </div>
               )}
@@ -218,7 +214,7 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      {/* Deep Bamboo Forest Footer */}
+      {/* Footer */}
       <footer className="bamboo-footer">
         <div className="container bamboo-footer__inner">
           <div className="bamboo-footer__brand-col">
@@ -230,34 +226,32 @@ export function AppShell() {
                 <span className="bamboo-brand__title">
                   Study<strong>Hub</strong>
                 </span>
-                <span className="bamboo-brand__tagline">Cây tre vươn mình cùng tri thức</span>
               </div>
             </Link>
             <p className="bamboo-footer__manifesto">
-              Nền tảng chia sẻ học liệu mở lấy cảm hứng từ hình tượng cây tre Việt Nam: mộc mạc, bền bỉ,
-              kết nối thành lũy và cùng nhau vươn tới tầm cao tri thức.
+              Nền tảng chia sẻ và tìm kiếm tài liệu học tập dành cho sinh viên. Cùng nhau học tập và chia sẻ kiến thức.
             </p>
             <div className="bamboo-footer__badges">
-              <span className="bamboo-badge bamboo-badge--tree">🌱 Giáo dục vì cộng đồng</span>
-              <span className="bamboo-badge bamboo-badge--open">📖 Học liệu mở 100%</span>
+              <span className="bamboo-badge bamboo-badge--tree">Tài liệu miễn phí</span>
+              <span className="bamboo-badge bamboo-badge--open">Cộng đồng mở</span>
             </div>
           </div>
 
           <div className="bamboo-footer__links-col">
             <div className="bamboo-footer__group">
-              <h3>Khám phá</h3>
+              <h3>Điều hướng</h3>
               <ul>
-                <li><Link to="/">Kho tài liệu</Link></li>
-                <li><Link to="/upload">Chia sẻ tài liệu mới</Link></li>
-                <li><Link to="/saved">Tủ sách đã lưu</Link></li>
+                <li><Link to="/">Khám phá</Link></li>
+                <li><Link to="/upload">Đăng tài liệu</Link></li>
+                <li><Link to="/saved">Đã lưu</Link></li>
               </ul>
             </div>
             <div className="bamboo-footer__group">
-              <h3>Cộng đồng</h3>
+              <h3>Thông tin</h3>
               <ul>
-                <li><span className="bamboo-footer__text-item">Sinh viên & Giảng viên</span></li>
-                <li><span className="bamboo-footer__text-item">Kiểm duyệt mở</span></li>
-                <li><span className="bamboo-footer__text-item">Quy tắc học thuật</span></li>
+                <li><span className="bamboo-footer__text-item">Dành cho sinh viên</span></li>
+                <li><span className="bamboo-footer__text-item">Quy định chia sẻ</span></li>
+                <li><span className="bamboo-footer__text-item">Hỗ trợ học tập</span></li>
               </ul>
             </div>
           </div>
@@ -265,12 +259,7 @@ export function AppShell() {
 
         <div className="bamboo-footer__bottom">
           <div className="container bamboo-footer__bottom-inner">
-            <p>© {new Date().getFullYear()} StudyHub · Dự án học tập & chia sẻ tri thức mở</p>
-            <div className="bamboo-footer__node-marker">
-              <span />
-              <em>Đốt tre vững chãi — Tri thức vươn xa</em>
-              <span />
-            </div>
+            <p>© {new Date().getFullYear()} StudyHub · Nền tảng chia sẻ tài liệu học tập</p>
           </div>
         </div>
       </footer>

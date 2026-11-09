@@ -47,14 +47,14 @@ export function AdminDashboardPage() {
     void load();
   }, []);
 
-  if (loading) return <PageLoader label="Đang tổng hợp dữ liệu toàn hệ thống…" />;
+  if (loading) return <PageLoader label="Đang tải dữ liệu tổng quan…" />;
   if (error || !stats) return <ErrorState message={error || 'Không có dữ liệu.'} onRetry={load} />;
 
   const cards = [
     { label: 'Tổng tài liệu', value: stats.documents, icon: 'file' as const, tone: 'green' },
-    { label: 'Thành viên người học', value: stats.users, icon: 'users' as const, tone: 'teal' },
-    { label: 'Đánh giá học thuật', value: stats.reviews, icon: 'star' as const, tone: 'gold' },
-    { label: 'Danh mục học phần', value: stats.categories, icon: 'book' as const, tone: 'purple' },
+    { label: 'Người dùng', value: stats.users, icon: 'users' as const, tone: 'teal' },
+    { label: 'Đánh giá', value: stats.reviews, icon: 'star' as const, tone: 'gold' },
+    { label: 'Danh mục', value: stats.categories, icon: 'book' as const, tone: 'purple' },
   ];
 
   return (
@@ -63,11 +63,11 @@ export function AdminDashboardPage() {
         <div>
           <div className="bamboo-eyebrow">
             <Icon name="settings" size={14} />
-            <span>Trung tâm chỉ huy</span>
+            <span>Quản trị</span>
           </div>
           <h1 className="bamboo-admin-heading__title">Tổng quan hệ thống</h1>
           <p className="bamboo-admin-heading__subtitle">
-            Theo dõi lưu lượng học liệu, số lượng người học và trạng thái kiểm duyệt của StudyHub.
+            Thống kê số lượng tài liệu, người dùng và trạng thái kiểm duyệt của hệ thống.
           </p>
         </div>
       </div>
@@ -91,16 +91,15 @@ export function AdminDashboardPage() {
       <div className="bamboo-admin-alert-banner">
         <div className="bamboo-admin-alert-banner__content">
           <div className="bamboo-pill bamboo-pill--dark">
-            <Icon name="leaf" size={13} /> Cần kiểm duyệt
+            <Icon name="leaf" size={13} /> Cần xử lý
           </div>
-          <h2>{stats.pending} tài liệu mới đang chờ duyệt</h2>
+          <h2>{stats.pending} tài liệu đang chờ duyệt</h2>
           <p>
-            Tài liệu do thành viên đăng tải cần được kiểm duyệt nội dung trước khi xuất hiện công khai trên
-            trang Khám phá của cộng đồng.
+            Các tài liệu mới do người dùng đăng tải cần được kiểm duyệt trước khi hiển thị công khai.
           </p>
         </div>
         <Link className="bamboo-btn bamboo-btn--primary" to="/admin/documents">
-          <span>Đi tới kiểm duyệt ngay</span>
+          <span>Xem tài liệu chờ duyệt</span>
           <Icon name="arrow" size={17} />
         </Link>
       </div>

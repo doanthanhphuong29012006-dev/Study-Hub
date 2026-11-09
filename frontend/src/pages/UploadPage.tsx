@@ -120,12 +120,12 @@ export function UploadPage() {
     <div className="container bamboo-upload-page">
       <div className="bamboo-page-heading">
         <div className="bamboo-eyebrow">
-          <Icon name="leaf" size={14} />
-          <span>Góp mầm tri thức</span>
+          <Icon name="upload" size={14} />
+          <span>Đăng tài liệu</span>
         </div>
-        <h1 className="bamboo-page-heading__title">Đăng tải tài liệu học tập</h1>
+        <h1 className="bamboo-page-heading__title">Tải lên tài liệu</h1>
         <p className="bamboo-page-heading__subtitle">
-          Chia sẻ giáo trình, bài tập, đề thi hoặc liên kết học tập hữu ích để tiếp sức cho cộng đồng người học.
+          Chia sẻ giáo trình, bài tập, đề thi hoặc tài liệu học tập với cộng đồng.
         </p>
       </div>
 
@@ -138,7 +138,7 @@ export function UploadPage() {
         )}
 
         {/* Method Picker Tabs */}
-        <div className="bamboo-method-cards" role="tablist" aria-label="Phương thức đóng góp">
+        <div className="bamboo-method-cards" role="tablist" aria-label="Phương thức tải lên">
           <button
             type="button"
             role="tab"
@@ -168,7 +168,7 @@ export function UploadPage() {
             </div>
             <div className="bamboo-method-card__text">
               <strong>Liên kết trực tuyến</strong>
-              <small>Google Drive, Notion, bài viết web</small>
+              <small>Google Drive, Notion, liên kết ngoài</small>
             </div>
             <span className="bamboo-method-card__check" aria-hidden="true" />
           </button>
@@ -184,7 +184,7 @@ export function UploadPage() {
               <Icon name="eye" size={24} />
             </div>
             <div className="bamboo-method-card__text">
-              <strong>Hình ảnh học tập</strong>
+              <strong>Hình ảnh</strong>
               <small>Sơ đồ tư duy, infographic, ảnh bài giảng</small>
             </div>
             <span className="bamboo-method-card__check" aria-hidden="true" />
@@ -362,7 +362,7 @@ export function UploadPage() {
 
             <div className={`bamboo-field bamboo-field--full ${errors.categoryId ? 'has-error' : ''}`}>
               <label htmlFor="upload-category">
-                Danh mục học phần <span className="bamboo-required">*</span>
+                Danh mục <span className="bamboo-required">*</span>
               </label>
               <select
                 id="upload-category"
@@ -372,7 +372,7 @@ export function UploadPage() {
                   setErrors({ ...errors, categoryId: '' });
                 }}
               >
-                <option value="">-- Chọn danh mục học phần --</option>
+                <option value="">-- Chọn danh mục --</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -386,14 +386,14 @@ export function UploadPage() {
 
             <div className="bamboo-field bamboo-field--full">
               <label htmlFor="upload-description">
-                Mô tả chi tiết hoặc hướng dẫn sử dụng <span>(không bắt buộc)</span>
+                Mô tả <span>(không bắt buộc)</span>
               </label>
               <textarea
                 id="upload-description"
                 rows={4}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Tóm tắt nội dung tài liệu, môn học tương ứng, giảng viên phụ trách hoặc lưu ý quan trọng khi ôn tập…"
+                placeholder="Mô tả ngắn gọn về nội dung tài liệu…"
               />
             </div>
           </div>
@@ -414,7 +414,7 @@ export function UploadPage() {
               disabled={submitting}
             >
               <Icon name="upload" size={17} />
-              <span>{submitting ? 'Đang tải lên hệ thống…' : 'Xuất bản tài liệu'}</span>
+              <span>{submitting ? 'Đang tải lên…' : 'Đăng tài liệu'}</span>
             </button>
           </div>
         </form>

@@ -105,13 +105,13 @@ export function AdminCategoriesPage() {
   return (
     <div className="bamboo-admin-page">
       <AdminTitle
-        eyebrow="Cấu trúc thư viện"
+        eyebrow="Quản trị"
         title="Quản lý danh mục"
-        description="Tổ chức tài liệu học thuật theo từng khối ngành, học phần và chuyên môn."
+        description="Quản lý các danh mục tài liệu trên hệ thống."
         action={
           <button type="button" className="bamboo-btn bamboo-btn--primary" onClick={openCreate}>
             <Icon name="check" size={16} />
-            <span>+ Thêm danh mục mới</span>
+            <span>Thêm danh mục</span>
           </button>
         }
       />
@@ -120,7 +120,7 @@ export function AdminCategoriesPage() {
       {formOpen && (
         <form className="bamboo-form-card bamboo-admin-inline-form" onSubmit={submit}>
           <div className="bamboo-form-card__header">
-            <h2>{editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục học phần mới'}</h2>
+            <h2>{editing ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}</h2>
             <button
               type="button"
               className="bamboo-icon-btn"
@@ -140,7 +140,7 @@ export function AdminCategoriesPage() {
 
           <div className="bamboo-form-grid">
             <div className="bamboo-field">
-              <label htmlFor="category-name">Tên danh mục học phần</label>
+              <label htmlFor="category-name">Tên danh mục</label>
               <input
                 id="category-name"
                 value={form.name}
@@ -150,7 +150,7 @@ export function AdminCategoriesPage() {
             </div>
 
             <div className="bamboo-field">
-              <label htmlFor="category-slug">Đường dẫn định danh (Slug)</label>
+              <label htmlFor="category-slug">Đường dẫn (Slug)</label>
               <input
                 id="category-slug"
                 value={form.slug}
@@ -165,13 +165,13 @@ export function AdminCategoriesPage() {
             </div>
 
             <div className="bamboo-field bamboo-field--full">
-              <label htmlFor="category-description">Mô tả tóm lược</label>
+              <label htmlFor="category-description">Mô tả</label>
               <textarea
                 id="category-description"
                 rows={3}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Giới thiệu các môn học và chủ đề thuộc danh mục này…"
+                placeholder="Mô tả về danh mục này…"
               />
             </div>
           </div>
@@ -193,16 +193,16 @@ export function AdminCategoriesPage() {
 
       {/* Category Card Grid */}
       {loading ? (
-        <PageLoader label="Đang tải danh mục học phần…" />
+        <PageLoader label="Đang tải danh sách danh mục…" />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
       ) : categories.length === 0 ? (
         <EmptyState
           title="Chưa có danh mục nào"
-          description="Tạo danh mục đầu tiên để phân loại tài liệu cho người học."
+          description="Tạo danh mục để phân loại tài liệu."
           action={
             <button type="button" className="bamboo-btn bamboo-btn--primary" onClick={openCreate}>
-              Thêm danh mục đầu tiên
+              Thêm danh mục
             </button>
           }
         />

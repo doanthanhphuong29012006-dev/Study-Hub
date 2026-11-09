@@ -48,15 +48,15 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
         <div className="bamboo-page-heading__main">
           <div className="bamboo-eyebrow">
             <Icon name="bookmark" size={14} />
-            <span>Tủ sách tri thức cá nhân</span>
+            <span>Tài liệu cá nhân</span>
           </div>
           <h1 className="bamboo-page-heading__title">
-            {saved ? 'Tài liệu bạn đã lưu' : 'Tài liệu bạn đã đóng góp'}
+            {saved ? 'Tài liệu đã lưu' : 'Tài liệu của tôi'}
           </h1>
           <p className="bamboo-page-heading__subtitle">
             {saved
-              ? 'Kho lưu trữ những tài liệu giá trị bạn muốn quay lại nghiên cứu và ôn luyện.'
-              : 'Theo dõi tình trạng phê duyệt và số lượt tương tác từ tài liệu bạn chia sẻ.'}
+              ? 'Danh sách các tài liệu bạn đã lưu để xem lại sau.'
+              : 'Quản lý và theo dõi các tài liệu bạn đã đăng tải lên hệ thống.'}
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
               className={`bamboo-tab-pill ${!saved ? 'is-active' : ''}`}
             >
               <Icon name="folder" size={15} />
-              <span>Của tôi</span>
+              <span>Tài liệu của tôi</span>
             </Link>
           </div>
 
@@ -89,16 +89,16 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
 
       {/* Content Grid */}
       {loading ? (
-        <PageLoader label="Đang mở tủ sách tri thức của bạn…" />
+        <PageLoader label="Đang tải danh sách tài liệu…" />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
       ) : documents.length === 0 ? (
         <EmptyState
-          title={saved ? 'Tủ sách chưa có tài liệu lưu trữ' : 'Bạn chưa chia sẻ tài liệu nào'}
+          title={saved ? 'Bạn chưa lưu tài liệu nào' : 'Bạn chưa đăng tài liệu nào'}
           description={
             saved
-              ? 'Khi khám phá được tài liệu hữu ích, bấm “Lưu vào tủ sách” để dễ dàng xem lại bất cứ lúc nào.'
-              : 'Hãy chia sẻ tài liệu học tập đầu tiên để cùng bồi đắp cộng đồng tri thức StudyHub.'
+              ? 'Khám phá kho tài liệu và bấm “Lưu tài liệu” để xem lại sau tại đây.'
+              : 'Hãy bắt đầu chia sẻ tài liệu học tập đầu tiên của bạn.'
           }
           action={
             <Link
@@ -106,7 +106,7 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
               to={saved ? '/' : '/upload'}
             >
               <Icon name={saved ? 'leaf' : 'upload'} size={16} />
-              <span>{saved ? 'Khám phá tài liệu ngay' : 'Đăng tải tài liệu đầu tiên'}</span>
+              <span>{saved ? 'Khám phá tài liệu' : 'Đăng tài liệu'}</span>
             </Link>
           }
         />

@@ -103,11 +103,11 @@ export function ProfilePage() {
       <div className="bamboo-page-heading">
         <div className="bamboo-eyebrow">
           <Icon name="user" size={14} />
-          <span>Thành viên StudyHub</span>
+          <span>Tài khoản</span>
         </div>
-        <h1 className="bamboo-page-heading__title">Hồ sơ học tập của bạn</h1>
+        <h1 className="bamboo-page-heading__title">Hồ sơ cá nhân</h1>
         <p className="bamboo-page-heading__subtitle">
-          Quản lý tên hiển thị, ảnh đại diện và nhận diện tài khoản trong cộng đồng.
+          Quản lý tên hiển thị, ảnh đại diện và thông tin tài khoản của bạn.
         </p>
       </div>
 
@@ -174,10 +174,10 @@ export function ProfilePage() {
             </div>
 
             <div className="bamboo-field">
-              <label>Vai trò trong hệ thống</label>
+              <label>Vai trò</label>
               <div className="bamboo-read-only-pill">
                 <Icon name={user?.role === 'admin' ? 'shield' : 'user'} size={16} />
-                <span>{user?.role === 'admin' ? 'Quản trị viên hệ thống' : 'Sinh viên / Người học'}</span>
+                <span>{user?.role === 'admin' ? 'Quản trị viên' : 'Sinh viên'}</span>
               </div>
             </div>
           </div>

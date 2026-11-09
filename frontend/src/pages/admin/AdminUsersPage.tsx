@@ -70,9 +70,9 @@ export function AdminUsersPage() {
   return (
     <div className="bamboo-admin-page">
       <AdminTitle
-        eyebrow="Quản lý thành viên"
-        title="Thành viên & Phân quyền"
-        description="Tìm kiếm người học, chỉ định vai trò quản trị viên và kiểm soát trạng thái tài khoản."
+        eyebrow="Quản trị"
+        title="Quản lý người dùng"
+        description="Quản lý tài khoản, vai trò và trạng thái người dùng."
       />
 
       {/* Toolbar Filter */}
@@ -105,12 +105,12 @@ export function AdminUsersPage() {
 
       {/* User Table */}
       {loading ? (
-        <PageLoader label="Đang tải danh sách thành viên…" />
+        <PageLoader label="Đang tải danh sách người dùng…" />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
       ) : users.length === 0 ? (
         <EmptyState
-          title="Không tìm thấy thành viên"
+          title="Không tìm thấy người dùng"
           description="Không có tài khoản nào phù hợp với bộ lọc tìm kiếm hiện tại."
         />
       ) : (
@@ -119,10 +119,10 @@ export function AdminUsersPage() {
             <table className="bamboo-table">
               <thead>
                 <tr>
-                  <th>Thành viên</th>
+                  <th>Người dùng</th>
                   <th>Vai trò</th>
                   <th>Trạng thái</th>
-                  <th>Ngày gia nhập</th>
+                  <th>Ngày tham gia</th>
                   <th>Hành động</th>
                 </tr>
               </thead>

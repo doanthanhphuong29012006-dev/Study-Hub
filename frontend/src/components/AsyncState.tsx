@@ -1,6 +1,6 @@
 import { Icon } from './Icon';
 
-export function PageLoader({ label = 'Đang nuôi dưỡng dữ liệu…' }: { label?: string }) {
+export function PageLoader({ label = 'Đang tải dữ liệu…' }: { label?: string }) {
   return (
     <div className="bamboo-async-card" role="status">
       <div className="bamboo-spinner-wrap">
