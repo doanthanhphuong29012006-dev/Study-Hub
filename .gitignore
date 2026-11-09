@@ -8,3 +8,5 @@ dist/
 # Sinh ra từ Mac/Windows
 .DS_Store
 Thumbs.db
+
+.agents/

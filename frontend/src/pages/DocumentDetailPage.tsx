@@ -376,12 +376,12 @@ export function DocumentDetailPage() {
             </p>
           </section>
           <section className="content-section document-preview-section">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="document-preview__header">
+              <div className="document-preview__title">
                 <Icon name="eye" size={22} />
-                <h2 style={{ margin: 0 }}>Xem trước tài liệu</h2>
+                <h2>Xem trước tài liệu</h2>
               </div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="document-preview__actions">
                 {isPdf && (
                   <button
                     type="button"
@@ -397,7 +397,6 @@ export function DocumentDetailPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="button button--ghost button--small"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
                   <Icon name="arrow" size={14} /> Mở tab mới
                 </a>
@@ -405,15 +404,15 @@ export function DocumentDetailPage() {
             </div>
 
             {isImage ? (
-              <div style={{ textAlign: 'center', background: '#f8faf9', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--line)' }}>
+              <div className="preview-image-box">
                 <img
                   src={document.file_url}
                   alt={document.title}
-                  style={{ maxWidth: '100%', maxHeight: '650px', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' }}
+                  style={{ maxWidth: '100%', maxHeight: '650px', objectFit: 'contain', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}
                 />
               </div>
             ) : isPdf ? (
-              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#323639', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+              <div className={`preview-frame ${useGoogleViewer ? '' : 'preview-frame--dark'}`}>
                 {useGoogleViewer ? (
                   <iframe
                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
@@ -433,7 +432,7 @@ export function DocumentDetailPage() {
                 )}
               </div>
             ) : isOffice ? (
-              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#f8faf9', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+              <div className="preview-frame">
                 <iframe
                   src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
                   width="100%"
@@ -443,7 +442,7 @@ export function DocumentDetailPage() {
                 />
               </div>
             ) : isGoogleDrive && googleDrivePreviewUrl ? (
-              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+              <div className="preview-frame">
                 <iframe
                   src={googleDrivePreviewUrl}
                   width="100%"
@@ -454,12 +453,12 @@ export function DocumentDetailPage() {
                 />
               </div>
             ) : (
-              <div style={{ padding: '32px 20px', background: '#f8faf9', borderRadius: '12px', border: '1px solid var(--line)', textAlign: 'center' }}>
+              <div className="preview-fallback-box">
                 <div style={{ marginBottom: '14px', color: 'var(--muted)' }}>
                   <Icon name="file" size={44} />
                 </div>
                 <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem' }}>Tài liệu đính kèm</h3>
-                <p style={{ margin: '0 0 18px', color: '#556259', fontSize: '0.9rem', maxWidth: '480px', marginInline: 'auto' }}>
+                <p style={{ margin: '0 0 18px', color: 'var(--muted)', fontSize: '0.9rem', maxWidth: '480px', marginInline: 'auto' }}>
                   {isLink
                     ? 'Tài liệu này được chia sẻ dưới dạng liên kết ngoài. Bạn có thể mở liên kết để xem nội dung chi tiết.'
                     : 'Định dạng tệp tin này không hỗ trợ đọc trực tiếp trong trình duyệt. Bạn có thể tải về để mở trên thiết bị.'}
