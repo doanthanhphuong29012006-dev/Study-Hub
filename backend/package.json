@@ -5,7 +5,13 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.2.0",
+    "@types/pg": "^8.21.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
@@ -18,8 +24,10 @@
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "pg": "^8.23.0",
+    "prisma": "^6.19.3",
     "rate-limit-redis": "^6.0.1",
-    "redis": "^6.3.0"
+    "redis": "^6.3.0",
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -32,17 +40,9 @@
     "prisma:migrate": "prisma migrate dev"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/multer": "^2.2.0",
-    "@types/node": "^26.2.0",
-    "@types/pg": "^8.21.0",
     "nodemon": "^3.1.14",
-    "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2",
     "vitest": "3.2.4"
   }
 }
