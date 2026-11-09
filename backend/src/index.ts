@@ -9,14 +9,27 @@ import { globalErrorHandler } from './middlewares/error.middleware';
 const app = express();
 const PORT = process.env.PORT || 1234;
 
-// CORS configuare
+const defaultOrigins = [
+    "http://localhost:5173", 
+    "https://payt-chia-se-tai-lieu.vercel.app", 
+    "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app",
+    "http://localhost:8080"
+];
+const envOrigins = (process.env.CLIENT_ORIGIN || process.env.FRONTEND_URL || "")
+    .split(",")
+    .map(o => o.trim())
+    .filter(Boolean);
+const allowedOrigins = [...defaultOrigins, ...envOrigins];
+
+// CORS configuration
 app.use(cors({
-    origin: [
-        "http://localhost:5173", 
-        "https://payt-chia-se-tai-lieu.vercel.app", 
-        "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app",
-        "http://localhost:8080"
-    ],
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: [
       'Content-Type', 
@@ -100,3 +113,5 @@ const startServer = async () => {
 };
 
 startServer();
+
+export default app;
