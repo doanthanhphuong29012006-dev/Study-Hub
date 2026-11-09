@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import pool, { connectDB } from './config/database';
 import { redisConnect, redisClose } from './config/redis';
+import { configureCloudinary } from './config/cloudinary';
 import { requireValidOrigin } from './middlewares/origin-check.middleware';
 import { globalErrorHandler } from './middlewares/error.middleware';
 
@@ -60,6 +61,7 @@ const startServer = async () => {
 
         await connectDB();
         await redisConnect();
+        configureCloudinary();
 
         const { globalLimiter } = require("./middlewares/rate-limit.middleware");
         const routes = require("./routes/index.route").default;

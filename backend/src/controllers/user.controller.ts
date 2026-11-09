@@ -87,6 +87,12 @@ export const updateInfoUser = async (req: Request, res: Response) => {
             fs.unlinkSync(req.file.path);
         }
 
+        if (error.message?.includes("Must supply api_key")) {
+            return res.status(500).json({
+                message: "Hệ thống máy chủ chưa được cấu hình CLOUDINARY_API_KEY để tải ảnh đại diện lên đám mây."
+            });
+        }
+
         if (error.message === "User_Not_Found") {
             return res.status(404).json({ 
                 message: "Không tìm thấy thông tin người dùng!" 

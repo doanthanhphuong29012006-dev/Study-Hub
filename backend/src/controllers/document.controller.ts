@@ -119,6 +119,12 @@ export const createDocument = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Danh mục không tồn tại.' });
         }
 
+        if (error.message?.includes("Must supply api_key")) {
+            return res.status(500).json({
+                message: 'Hệ thống máy chủ chưa được cấu hình CLOUDINARY_API_KEY. Vui lòng thêm biến môi trường trên Render hoặc dùng tính năng chia sẻ qua Liên kết (Link/URL).'
+            });
+        }
+
         return res.status(500).json({
             message: 'Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau.'
         });
