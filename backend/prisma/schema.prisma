@@ -22,7 +22,7 @@ model Document {
   title          String          @db.VarChar(255)
   description    String?
   file_url       String          @db.VarChar(2048)
-  file_type      String          @db.VarChar(50)
+  file_type      String          @db.VarChar(255)
   file_size      Int
   uploader_id    String?         @db.Uuid
   category_id    String?         @db.Uuid

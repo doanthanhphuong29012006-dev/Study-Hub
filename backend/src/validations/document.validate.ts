@@ -42,7 +42,7 @@ export const createDocumentValidation = (req: Request, res: Response, next: Next
                 "string.max": "Đường dẫn không được vượt quá 2048 ký tự!"
             }),
         fileType: Joi.string()
-            .max(50)
+            .max(255)
             .allow('', null)
             .optional()
     });
