@@ -33,6 +33,7 @@ export function DocumentDetailPage() {
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [editingReview, setEditingReview] = useState('');
   const [formError, setFormError] = useState('');
+  const [useGoogleViewer, setUseGoogleViewer] = useState(false);
 
   const loadDocument = useCallback(async () => {
     setLoading(true);
@@ -243,8 +244,18 @@ export function DocumentDetailPage() {
       </section>
     );
   const canManage = user?.role === 'admin' || user?.id === document.uploader_id;
-  const isImage = document.file_type?.startsWith('image/');
+  const isImage = document.file_type?.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg)($|\?)/i.test(document.file_url);
+  const isPdf = document.file_type === 'application/pdf' || /\.pdf($|\?)/i.test(document.file_url);
+  const isOffice =
+    document.file_type?.includes('word') ||
+    document.file_type?.includes('officedocument') ||
+    document.file_type?.includes('presentation') ||
+    document.file_type?.includes('spreadsheet') ||
+    /\.(docx?|pptx?|xlsx?)($|\?)/i.test(document.file_url);
   const isLink = document.file_type === 'link';
+  const googleDriveMatch = document.file_url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  const isGoogleDrive = Boolean(googleDriveMatch);
+  const googleDrivePreviewUrl = googleDriveMatch ? `https://drive.google.com/file/d/${googleDriveMatch[1]}/preview` : null;
 
   return (
     <section className="container page-section detail-page">
@@ -364,18 +375,108 @@ export function DocumentDetailPage() {
               {document.description || 'Người đăng chưa thêm mô tả cho tài liệu này.'}
             </p>
           </section>
-          {isImage && (
-            <section className="content-section">
-              <h2>Nội dung hình ảnh</h2>
-              <div style={{ marginTop: '1rem', textAlign: 'center', background: '#f8faf9', padding: '1rem', borderRadius: '12px' }}>
+          <section className="content-section document-preview-section">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon name="eye" size={22} />
+                <h2 style={{ margin: 0 }}>Xem trước tài liệu</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {isPdf && (
+                  <button
+                    type="button"
+                    onClick={() => setUseGoogleViewer((prev) => !prev)}
+                    className="button button--ghost button--small"
+                    title="Chuyển đổi giữa trình đọc trực tiếp và Google Docs Viewer"
+                  >
+                    {useGoogleViewer ? 'Dùng trình đọc trực tiếp' : 'Dùng Google Docs Viewer'}
+                  </button>
+                )}
+                <a
+                  href={document.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button button--ghost button--small"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Icon name="arrow" size={14} /> Mở tab mới
+                </a>
+              </div>
+            </div>
+
+            {isImage ? (
+              <div style={{ textAlign: 'center', background: '#f8faf9', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--line)' }}>
                 <img
                   src={document.file_url}
                   alt={document.title}
-                  style={{ maxWidth: '100%', maxHeight: '600px', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+                  style={{ maxWidth: '100%', maxHeight: '650px', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.08)' }}
                 />
               </div>
-            </section>
-          )}
+            ) : isPdf ? (
+              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#323639', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+                {useGoogleViewer ? (
+                  <iframe
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
+                    width="100%"
+                    height="720px"
+                    style={{ border: 'none', display: 'block' }}
+                    title={document.title}
+                  />
+                ) : (
+                  <iframe
+                    src={`${document.file_url}#toolbar=1`}
+                    width="100%"
+                    height="750px"
+                    style={{ border: 'none', display: 'block' }}
+                    title={document.title}
+                  />
+                )}
+              </div>
+            ) : isOffice ? (
+              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#f8faf9', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+                <iframe
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
+                  width="100%"
+                  height="720px"
+                  style={{ border: 'none', display: 'block' }}
+                  title={document.title}
+                />
+              </div>
+            ) : isGoogleDrive && googleDrivePreviewUrl ? (
+              <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #dce3dc', background: '#fff', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+                <iframe
+                  src={googleDrivePreviewUrl}
+                  width="100%"
+                  height="720px"
+                  style={{ border: 'none', display: 'block' }}
+                  title={document.title}
+                  allow="autoplay"
+                />
+              </div>
+            ) : (
+              <div style={{ padding: '32px 20px', background: '#f8faf9', borderRadius: '12px', border: '1px solid var(--line)', textAlign: 'center' }}>
+                <div style={{ marginBottom: '14px', color: 'var(--muted)' }}>
+                  <Icon name="file" size={44} />
+                </div>
+                <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem' }}>Tài liệu đính kèm</h3>
+                <p style={{ margin: '0 0 18px', color: '#556259', fontSize: '0.9rem', maxWidth: '480px', marginInline: 'auto' }}>
+                  {isLink
+                    ? 'Tài liệu này được chia sẻ dưới dạng liên kết ngoài. Bạn có thể mở liên kết để xem nội dung chi tiết.'
+                    : 'Định dạng tệp tin này không hỗ trợ đọc trực tiếp trong trình duyệt. Bạn có thể tải về để mở trên thiết bị.'}
+                </p>
+                <button
+                  type="button"
+                  className="button button--primary"
+                  onClick={download}
+                  disabled={!!busy}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginInline: 'auto' }}
+                >
+                  <Icon name="download" size={17} />
+                  {busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết tài liệu' : 'Tải tài liệu về máy'}
+                </button>
+              </div>
+            )}
+          </section>
           <section className="content-section reviews-section">
             <div className="section-heading section-heading--compact">
               <div>
