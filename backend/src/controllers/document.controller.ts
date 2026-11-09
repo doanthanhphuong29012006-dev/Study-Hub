@@ -32,34 +32,62 @@ export const createDocument = async (req: Request, res: Response) => {
     let cloudUploadResult: any = null;
 
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: "Vui lòng đính kèm tệp tin!" });
+        const userId = req.user.id;
+        const { title, description, categoryId, fileUrl: bodyFileUrl, link, fileType: bodyFileType } = req.body;
+        const targetUrl = (bodyFileUrl || link || '').trim();
+
+        if (!req.file && !targetUrl) {
+            return res.status(400).json({ message: "Vui lòng đính kèm tệp tin, liên kết hoặc hình ảnh!" });
         }
 
-        const userId = req.user.id;
-        const { title, description, categoryId } = req.body;
+        let fileUrl = '';
+        let fileSize = 0;
+        let fileType = '';
 
-        const isImage = req.file.mimetype.startsWith('image/');
-        const ext = req.file.originalname.split('.').pop();
-        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const publicId = isImage ? uniqueName : `${uniqueName}.${ext}`;
+        if (req.file) {
+            const isImage = req.file.mimetype.startsWith('image/');
+            const ext = req.file.originalname.split('.').pop();
+            const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+            const publicId = isImage ? uniqueName : `${uniqueName}.${ext}`;
 
-        //Thực hiện tải file từ vùng tạm lên cloudinary
-        cloudUploadResult = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'studyhub_documents',
-            resource_type: isImage ? 'auto' : 'raw',
-            public_id: publicId
-        });
+            //Thực hiện tải file từ vùng tạm lên cloudinary
+            cloudUploadResult = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'studyhub_documents',
+                resource_type: isImage ? 'auto' : 'raw',
+                public_id: publicId
+            });
 
-        const fileUrl = cloudUploadResult.secure_url;
-        const fileSize = req.file.size;
-        const fileType = req.file.mimetype;
+            fileUrl = cloudUploadResult.secure_url;
+            fileSize = req.file.size;
+            fileType = req.file.mimetype;
+
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path)
+            };
+        } else {
+            fileUrl = targetUrl;
+            fileSize = 0;
+            if (bodyFileType) {
+                fileType = bodyFileType;
+            } else {
+                const lowerUrl = fileUrl.toLowerCase();
+                if (lowerUrl.match(/\.(jpeg|jpg)($|\?)/)) {
+                    fileType = 'image/jpeg';
+                } else if (lowerUrl.match(/\.png($|\?)/)) {
+                    fileType = 'image/png';
+                } else if (lowerUrl.match(/\.webp($|\?)/)) {
+                    fileType = 'image/webp';
+                } else if (lowerUrl.match(/\.gif($|\?)/)) {
+                    fileType = 'image/gif';
+                } else if (lowerUrl.match(/\.pdf($|\?)/)) {
+                    fileType = 'application/pdf';
+                } else {
+                    fileType = 'link';
+                }
+            }
+        }
 
         await documentService.createDocument(fileUrl, fileSize, fileType, title, description, categoryId, userId);
-
-        if (fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path)
-        };
 
         res.status(201).json({
             message: "Tải tài liệu lên thành công!",
@@ -202,19 +230,21 @@ export const deleteDocument = async (req: Request, res: Response) => {
         const fileUrl = await documentService.deleteDocument(documentId as string, userId, userRole);
         if (fileUrl) {
             try {
-                const urlPart = fileUrl.split('/');
-                const fileNameWithExtension = urlPart[urlPart.length - 1];
-                
-                const isRaw = fileUrl.includes('/raw/upload/');
-                
-                const publicId = isRaw 
-                    ? `studyhub_documents/${fileNameWithExtension}` 
-                    : `studyhub_documents/${fileNameWithExtension.split('.')[0]}`;
+                if (fileUrl.includes('cloudinary.com')) {
+                    const urlPart = fileUrl.split('/');
+                    const fileNameWithExtension = urlPart[urlPart.length - 1];
+                    
+                    const isRaw = fileUrl.includes('/raw/upload/');
+                    
+                    const publicId = isRaw 
+                        ? `studyhub_documents/${fileNameWithExtension}` 
+                        : `studyhub_documents/${fileNameWithExtension.split('.')[0]}`;
 
-                await cloudinary.uploader.destroy(publicId, {
-                    resource_type: isRaw ? 'raw' : 'image'
-                });
-                console.log(`Đã dọn file trên cloudinary: ${publicId}`)
+                    await cloudinary.uploader.destroy(publicId, {
+                        resource_type: isRaw ? 'raw' : 'image'
+                    });
+                    console.log(`Đã dọn file trên cloudinary: ${publicId}`)
+                }
             } catch (cloudErr) {
                 console.error("Lỗi khi xóa file trên Cloudinary:", cloudErr);
             }

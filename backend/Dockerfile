@@ -3,6 +3,7 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 COPY package.json yarn.lock ./
+COPY prisma ./prisma
 RUN yarn install --frozen-lockfile
 
 COPY tsconfig.json ./
@@ -16,6 +17,7 @@ RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 ENV NODE_ENV=production
 
 COPY package.json yarn.lock ./
+COPY prisma ./prisma
 RUN yarn install --frozen-lockfile --production=true
 
 COPY --from=build /app/dist ./dist

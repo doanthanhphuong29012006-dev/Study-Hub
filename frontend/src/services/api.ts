@@ -35,10 +35,21 @@ export const documentApi = {
     apiRequest<MessageResponse & { documents: StudyDocument[]; pagination: PaginationData }>(
       `/documents${buildQuery(filters)}`,
     ),
-  create: (body: FormData) =>
+  create: (
+    body:
+      | FormData
+      | {
+          title: string;
+          description?: string;
+          categoryId: string;
+          fileUrl?: string;
+          link?: string;
+          fileType?: string;
+        },
+  ) =>
     apiRequest<MessageResponse & { data: { fileUrl: string } }>('/documents', {
       method: 'POST',
-      body,
+      body: body instanceof FormData ? body : JSON.stringify(body),
     }),
   detail: (id: string) =>
     apiRequest<MessageResponse & { document: StudyDocument }>(`/documents/${encodeURIComponent(id)}`),

@@ -5,7 +5,7 @@ import { Icon } from './Icon';
 import { StatusBadge } from './StatusBadge';
 
 export function DocumentCard({ document, showStatus = false }: { document: StudyDocument; showStatus?: boolean }) {
-  const extension = document.file_type?.split('/').pop()?.toUpperCase() || 'FILE';
+  const extension = document.file_type === 'link' ? 'LINK' : document.file_type?.split('/').pop()?.toUpperCase() || 'FILE';
   return (
     <article className="document-card">
       <div className="document-card__top">
@@ -22,7 +22,7 @@ export function DocumentCard({ document, showStatus = false }: { document: Study
       <div className="document-card__meta">
         <span><Icon name="star" size={15} /> {Number(document.average_rating || 0).toFixed(1)}</span>
         <span><Icon name="download" size={15} /> {document.download_count ?? 0}</span>
-        <span>{formatFileSize(document.file_size)}</span>
+        <span>{document.file_type === 'link' || Number(document.file_size) === 0 ? 'Trực tuyến' : formatFileSize(document.file_size)}</span>
       </div>
       <footer className="document-card__footer">
         <span>{formatDate(document.saved_at ?? document.created_at)}</span>

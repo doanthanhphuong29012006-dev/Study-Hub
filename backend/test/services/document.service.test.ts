@@ -2,14 +2,39 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/repositories/document.repository", () => ({
     findAllDocument: vi.fn(),
+    createNewDocument: vi.fn(),
 }));
 
 import * as documentRepository from "../../src/repositories/document.repository";
-import { getAllDocument } from "../../src/services/document.service";
+import { getAllDocument, createDocument } from "../../src/services/document.service";
 
 describe("document.service", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+    });
+
+    it("gọi repository để tạo tài liệu mới", async () => {
+        vi.mocked(documentRepository.createNewDocument).mockResolvedValue(undefined as any);
+
+        await createDocument(
+            "https://example.com/tai-lieu.pdf",
+            0,
+            "application/pdf",
+            "Tài liệu Giải tích",
+            "Mô tả",
+            "cat-1",
+            "user-1"
+        );
+
+        expect(documentRepository.createNewDocument).toHaveBeenCalledWith(
+            "https://example.com/tai-lieu.pdf",
+            0,
+            "application/pdf",
+            "Tài liệu Giải tích",
+            "Mô tả",
+            "cat-1",
+            "user-1"
+        );
     });
 
     it("tính skip và trả kết quả phân trang", async () => {

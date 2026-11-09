@@ -22,7 +22,29 @@ export const createDocumentValidation = (req: Request, res: Response, next: Next
                 "string.empty": "ID danh mục không được để trống!",
                 "string.guid": "ID danh mục phải là chuẩn UUID (vd: 123e4567-e89b-12d3-a456-426614174000)!",
                 "any.required": "Trường categoryId là bắt buộc!"
-            })
+            }),
+        fileUrl: Joi.string()
+            .uri({ scheme: ['http', 'https'] })
+            .max(2048)
+            .allow('', null)
+            .optional()
+            .messages({
+                "string.uri": "Đường dẫn không hợp lệ!",
+                "string.max": "Đường dẫn không được vượt quá 2048 ký tự!"
+            }),
+        link: Joi.string()
+            .uri({ scheme: ['http', 'https'] })
+            .max(2048)
+            .allow('', null)
+            .optional()
+            .messages({
+                "string.uri": "Đường dẫn liên kết không hợp lệ!",
+                "string.max": "Đường dẫn không được vượt quá 2048 ký tự!"
+            }),
+        fileType: Joi.string()
+            .max(50)
+            .allow('', null)
+            .optional()
     });
 
     const { error, value } = schema.validate(req.body);

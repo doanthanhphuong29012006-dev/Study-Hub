@@ -34,4 +34,32 @@ describe("createDocumentValidation", () => {
         expect(next).toHaveBeenCalled();
         expect(res.status).not.toHaveBeenCalled();
     });
+
+    it("cho phép tài liệu có link hoặc fileUrl hợp lệ đi tiếp", () => {
+        const { req, res, next } = createMocks({
+            title: "Tài liệu Toán qua Link",
+            description: "Ôn tập",
+            categoryId: "123e4567-e89b-42d3-a456-426614174000",
+            link: "https://drive.google.com/file/d/123/view",
+        });
+
+        createDocumentValidation(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+        expect(res.status).not.toHaveBeenCalled();
+    });
+
+    it("từ chối khi đường dẫn link không hợp lệ", () => {
+        const { req, res, next } = createMocks({
+            title: "Tài liệu Toán",
+            description: "Ôn tập",
+            categoryId: "123e4567-e89b-42d3-a456-426614174000",
+            link: "duong-dan-sai",
+        });
+
+        createDocumentValidation(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(next).not.toHaveBeenCalled();
+    });
 });

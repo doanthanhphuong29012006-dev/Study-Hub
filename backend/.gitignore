@@ -25,3 +25,4 @@ yarn-debug.log*
 yarn-error.log*
 
 /CODE_REVIEW_CHECKLIST.md
+/src/generated/prisma

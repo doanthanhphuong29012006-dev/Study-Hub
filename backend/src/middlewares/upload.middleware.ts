@@ -24,10 +24,14 @@ const documentUpload = multer({
             'application/vnd.ms-powerpoint', 
             'application/vnd.openxmlformats-officedocument.presentationml.presentation', 
             'application/zip',
-            'application/x-zip-compressed'
+            'application/x-zip-compressed',
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/gif'
         ];
         
-        if (allowedMimes.includes(file.mimetype)) {
+        if (allowedMimes.includes(file.mimetype) || file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
             cb(new Error("File_Type_Not_Allowed"));

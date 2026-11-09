@@ -27,7 +27,7 @@ CREATE TABLE documents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    file_url VARCHAR(255) NOT NULL,
+    file_url VARCHAR(2048) NOT NULL,
     file_type VARCHAR(50) NOT NULL,
     file_size INTEGER NOT NULL,
     uploader_id UUID REFERENCES users(id) ON DELETE SET NULL,

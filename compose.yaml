@@ -41,6 +41,7 @@ services:
       DB_NAME: ${DB_NAME:-studyhub}
       DB_HOST: postgres
       DB_PORT: "5432"
+      DATABASE_URL: postgresql://${DB_USER:-studyhub}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-studyhub}?schema=public
       REDIS_URL: redis://redis:6379
       CLOUDINARY_NAME: ${CLOUDINARY_NAME:-}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}

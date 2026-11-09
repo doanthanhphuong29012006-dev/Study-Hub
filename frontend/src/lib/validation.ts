@@ -25,8 +25,22 @@ export function validateFullName(value: string) {
 }
 
 export function validateFile(file?: File | null, imageOnly = false) {
-  if (!file) return 'Vui lòng chọn tệp.';
+  if (!file) return imageOnly ? 'Vui lòng chọn hình ảnh.' : 'Vui lòng chọn tệp.';
   if (file.size > MAX_UPLOAD_SIZE) return 'Tệp không được vượt quá 10 MB.';
-  if (imageOnly && !file.type.startsWith('image/')) return 'Ảnh đại diện phải là tệp hình ảnh.';
+  if (imageOnly && !file.type.startsWith('image/')) return 'Tệp tải lên phải là hình ảnh.';
+  return '';
+}
+
+export function validateUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return 'Vui lòng nhập đường dẫn liên kết.';
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return 'Đường dẫn phải bắt đầu bằng http:// hoặc https://';
+    }
+  } catch {
+    return 'Đường dẫn liên kết không đúng định dạng.';
+  }
   return '';
 }

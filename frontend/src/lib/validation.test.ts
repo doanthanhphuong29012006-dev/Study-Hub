@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildQuery } from './api-client';
-import { validateEmail, validateFullName, validatePassword } from './validation';
+import { validateEmail, validateFullName, validatePassword, validateUrl } from './validation';
 
 describe('validation theo hợp đồng backend', () => {
   it('kiểm tra mật khẩu đủ bốn nhóm ký tự', () => {
@@ -12,6 +12,14 @@ describe('validation theo hợp đồng backend', () => {
     expect(validateEmail('ban@studyhub.vn')).toBe('');
     expect(validateEmail('email-sai')).not.toBe('');
     expect(validateFullName('An')).not.toBe('');
+  });
+
+  it('kiểm tra định dạng đường dẫn URL', () => {
+    expect(validateUrl('https://studyhub.vn/tailieu')).toBe('');
+    expect(validateUrl('http://example.com')).toBe('');
+    expect(validateUrl('')).not.toBe('');
+    expect(validateUrl('not-a-valid-url')).not.toBe('');
+    expect(validateUrl('ftp://example.com')).not.toBe('');
   });
 });
 
