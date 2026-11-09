@@ -62,6 +62,16 @@ export function HomePage() {
     setSearchParams(next);
   };
 
+  const setPage = (nextPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextPage > 1) {
+      next.set('page', String(nextPage));
+    } else {
+      next.delete('page');
+    }
+    setSearchParams(next);
+  };
+
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
     updateFilter('keyword', keyword.trim());
@@ -277,7 +287,7 @@ export function HomePage() {
               ))}
             </div>
 
-            <Pagination data={pagination} onChange={(nextPage) => updateFilter('page', String(nextPage))} />
+            <Pagination data={pagination} onChange={setPage} />
           </>
         )}
       </section>

@@ -8,10 +8,15 @@ export function Pagination({
   data?: PaginationData | null;
   onChange: (page: number) => void;
 }) {
-  if (!data || data.totalPage <= 1) return null;
+  if (!data) return null;
 
-  const pages = Array.from({ length: Math.min(5, data.totalPage) }, (_, index) => {
-    const start = Math.max(1, Math.min(data.currentPage - 2, data.totalPage - 4));
+  const currentPage = Number(data.currentPage) || 1;
+  const totalPage = Number(data.totalPage) || 1;
+
+  if (totalPage <= 1) return null;
+
+  const pages = Array.from({ length: Math.min(5, totalPage) }, (_, index) => {
+    const start = Math.max(1, Math.min(currentPage - 2, totalPage - 4));
     return start + index;
   });
 
@@ -20,8 +25,8 @@ export function Pagination({
       <button
         type="button"
         className="bamboo-pagination__btn bamboo-pagination__btn--prev"
-        disabled={data.currentPage <= 1}
-        onClick={() => onChange(data.currentPage - 1)}
+        disabled={currentPage <= 1}
+        onClick={() => onChange(currentPage - 1)}
         aria-label="Trang trước"
       >
         <Icon name="chevron" size={16} />
@@ -31,9 +36,9 @@ export function Pagination({
         <button
           type="button"
           key={page}
-          className={`bamboo-pagination__btn ${page === data.currentPage ? 'is-active' : ''}`}
+          className={`bamboo-pagination__btn ${page === currentPage ? 'is-active' : ''}`}
           onClick={() => onChange(page)}
-          aria-current={page === data.currentPage ? 'page' : undefined}
+          aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Tới trang ${page}`}
         >
           {page}
@@ -43,8 +48,8 @@ export function Pagination({
       <button
         type="button"
         className="bamboo-pagination__btn bamboo-pagination__btn--next"
-        disabled={data.currentPage >= data.totalPage}
-        onClick={() => onChange(data.currentPage + 1)}
+        disabled={currentPage >= totalPage}
+        onClick={() => onChange(currentPage + 1)}
         aria-label="Trang sau"
       >
         <Icon name="chevron" size={16} />

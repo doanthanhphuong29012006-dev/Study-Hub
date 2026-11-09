@@ -41,6 +41,16 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
     void load();
   }, [load]);
 
+  const setPage = (nextPage: number) => {
+    const next = new URLSearchParams(params);
+    if (nextPage > 1) {
+      next.set('page', String(nextPage));
+    } else {
+      next.delete('page');
+    }
+    setParams(next);
+  };
+
   return (
     <div className="container bamboo-library-page">
       {/* Header Banner */}
@@ -120,7 +130,7 @@ export function LibraryPage({ mode }: { mode: 'mine' | 'saved' }) {
 
           <Pagination
             data={pagination}
-            onChange={(next) => setParams({ page: String(next) })}
+            onChange={setPage}
           />
         </>
       )}
