@@ -42,4 +42,16 @@ describe("requireValidOrigin", () => {
 
         expect(next).toHaveBeenCalled();
     });
+
+    it("cho POST từ domain Vercel chính thức đi tiếp", () => {
+        const { req, res, next } = createMocks(
+            "POST",
+            "https://study-hub-zeta-inky.vercel.app",
+        );
+
+        requireValidOrigin(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+        expect(res.status).not.toHaveBeenCalled();
+    });
 });

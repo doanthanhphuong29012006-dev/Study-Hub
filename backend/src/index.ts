@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 1234;
 
 const defaultOrigins = [
     "http://localhost:5173", 
+    "https://study-hub-zeta-inky.vercel.app",
     "https://payt-chia-se-tai-lieu.vercel.app", 
     "https://payt-chia-se-tai-lieu-f0zzshy7b.vercel.app",
     "http://localhost:8080"
