@@ -132,7 +132,7 @@ export function AdminUsersPage() {
                     <td>
                       <div className="bamboo-table-user-cell">
                         <Avatar src={target.avatar} name={target.full_name} size="sm" />
-                        <div>
+                        <div className="bamboo-table-user-cell__info">
                           <strong>{target.full_name}</strong>
                           <small>{target.email}</small>
                         </div>

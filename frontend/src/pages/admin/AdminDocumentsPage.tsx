@@ -163,7 +163,7 @@ export function AdminDocumentsPage() {
                         <span className="bamboo-table-doc-cell__mark">
                           <Icon name="file" size={18} />
                         </span>
-                        <div>
+                        <div className="bamboo-table-doc-cell__info">
                           <Link className="bamboo-table-doc-cell__title" to={`/documents/${doc.id}`}>
                             <strong>{doc.title}</strong>
                           </Link>
