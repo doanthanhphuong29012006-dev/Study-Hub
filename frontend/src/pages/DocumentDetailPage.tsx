@@ -408,7 +408,6 @@ export function DocumentDetailPage() {
                 <img
                   src={document.file_url}
                   alt={document.title}
-                  style={{ maxWidth: '100%', maxHeight: '650px', objectFit: 'contain', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}
                 />
               </div>
             ) : isPdf ? (
@@ -416,17 +415,11 @@ export function DocumentDetailPage() {
                 {useGoogleViewer ? (
                   <iframe
                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
-                    width="100%"
-                    height="720px"
-                    style={{ border: 'none', display: 'block' }}
                     title={document.title}
                   />
                 ) : (
                   <iframe
                     src={`${document.file_url}#toolbar=1`}
-                    width="100%"
-                    height="750px"
-                    style={{ border: 'none', display: 'block' }}
                     title={document.title}
                   />
                 )}
@@ -435,9 +428,6 @@ export function DocumentDetailPage() {
               <div className="preview-frame">
                 <iframe
                   src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
-                  width="100%"
-                  height="720px"
-                  style={{ border: 'none', display: 'block' }}
                   title={document.title}
                 />
               </div>
@@ -445,20 +435,17 @@ export function DocumentDetailPage() {
               <div className="preview-frame">
                 <iframe
                   src={googleDrivePreviewUrl}
-                  width="100%"
-                  height="720px"
-                  style={{ border: 'none', display: 'block' }}
                   title={document.title}
                   allow="autoplay"
                 />
               </div>
             ) : (
               <div className="preview-fallback-box">
-                <div style={{ marginBottom: '14px', color: 'var(--muted)' }}>
+                <div className="preview-fallback-box__icon">
                   <Icon name="file" size={44} />
                 </div>
-                <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem' }}>Tài liệu đính kèm</h3>
-                <p style={{ margin: '0 0 18px', color: 'var(--muted)', fontSize: '0.9rem', maxWidth: '480px', marginInline: 'auto' }}>
+                <h3>Tài liệu đính kèm</h3>
+                <p>
                   {isLink
                     ? 'Tài liệu này được chia sẻ dưới dạng liên kết ngoài. Bạn có thể mở liên kết để xem nội dung chi tiết.'
                     : 'Định dạng tệp tin này không hỗ trợ đọc trực tiếp trong trình duyệt. Bạn có thể tải về để mở trên thiết bị.'}
@@ -468,7 +455,6 @@ export function DocumentDetailPage() {
                   className="button button--primary"
                   onClick={download}
                   disabled={!!busy}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginInline: 'auto' }}
                 >
                   <Icon name="download" size={17} />
                   {busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết tài liệu' : 'Tải tài liệu về máy'}

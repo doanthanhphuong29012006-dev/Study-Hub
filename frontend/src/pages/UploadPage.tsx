@@ -212,8 +212,8 @@ export function UploadPage() {
 
         {method === 'image' && (
           <div>
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '14px', alignItems: 'center' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: imageMode === 'url' ? 600 : 400 }}>
+            <div className="upload-mode-selector">
+              <label className="upload-mode-label">
                 <input
                   type="radio"
                   name="imageMode"
@@ -225,7 +225,7 @@ export function UploadPage() {
                 />
                 Gửi link ảnh (không cần upload file)
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: imageMode === 'file' ? 600 : 400 }}>
+              <label className="upload-mode-label">
                 <input
                   type="radio"
                   name="imageMode"
@@ -260,11 +260,10 @@ export function UploadPage() {
                   <small>Dán đường dẫn trực tiếp tới hình ảnh</small>
                 )}
                 {imageUrl.trim() && (
-                  <div style={{ marginTop: '12px', textAlign: 'center', background: '#f8faf9', padding: '12px', borderRadius: '8px' }}>
+                  <div className="upload-preview-box">
                     <img
                       src={imageUrl}
                       alt="Xem trước ảnh"
-                      style={{ maxHeight: '160px', maxWidth: '100%', objectFit: 'contain', borderRadius: '6px' }}
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}
@@ -291,16 +290,15 @@ export function UploadPage() {
                 />
                 <label htmlFor="document-image-file">
                   {imagePreview ? (
-                    <div style={{ textAlign: 'center' }}>
+                    <div className="upload-image-selected">
                       <img
                         src={imagePreview}
                         alt="Xem trước ảnh"
-                        style={{ maxHeight: '140px', maxWidth: '100%', borderRadius: '8px', objectFit: 'contain' }}
                       />
-                      <p style={{ marginTop: '8px', fontSize: '0.85rem' }}>
+                      <p>
                         <strong>{imageFile?.name}</strong> ({formatFileSize(imageFile?.size ?? 0)})
                       </p>
-                      <small style={{ color: 'var(--green)' }}>Bấm để đổi ảnh khác</small>
+                      <small className="upload-change-hint">Bấm để đổi ảnh khác</small>
                     </div>
                   ) : (
                     <>
