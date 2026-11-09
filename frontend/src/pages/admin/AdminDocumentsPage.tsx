@@ -13,11 +13,217 @@ import type { Category, DocumentStatus, PaginationData, StudyDocument } from '..
 import { AdminTitle } from './AdminUsersPage';
 
 export function AdminDocumentsPage() {
-  const notify = useToast(); const [documents, setDocuments] = useState<StudyDocument[]>([]); const [categories, setCategories] = useState<Category[]>([]); const [pagination, setPagination] = useState<PaginationData>();
-  const [page, setPage] = useState(1); const [keyword, setKeyword] = useState(''); const [query, setQuery] = useState(''); const [categoryId, setCategoryId] = useState(''); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [busy, setBusy] = useState(''); const [deleteTarget, setDeleteTarget] = useState<StudyDocument>();
-  const load = useCallback(async () => { setLoading(true); setError(''); try { const [docResponse, categoryResponse] = await Promise.all([adminApi.documents({ page, limit: 10, keyword: query, categoryId, sortedBy: 'created_at', order: 'DESC' }), categoryApi.list()]); setDocuments(docResponse.documents); setPagination(docResponse.pagination); setCategories(categoryResponse.data); } catch (err) { setError(getErrorMessage(err)); } finally { setLoading(false); } }, [categoryId, page, query]);
-  useEffect(() => { void load(); }, [load]);
-  const changeStatus = async (doc: StudyDocument, status: DocumentStatus) => { setBusy(doc.id); try { const response = await adminApi.changeDocumentStatus(doc.id, status); notify(response.message, 'success'); await load(); } catch (err) { notify(getErrorMessage(err), 'error'); } finally { setBusy(''); } };
-  const remove = async () => { if (!deleteTarget) return; setBusy(deleteTarget.id); try { const response = await adminApi.removeDocument(deleteTarget.id); notify(response.message, 'success'); setDeleteTarget(undefined); await load(); } catch (err) { notify(getErrorMessage(err), 'error'); setBusy(''); } };
-  return <><AdminTitle eyebrow="Kiểm duyệt nội dung" title="Tài liệu" description="Duyệt, từ chối hoặc gỡ tài liệu trên toàn hệ thống." /><form className="admin-toolbar" onSubmit={(event) => { event.preventDefault(); setPage(1); setQuery(keyword.trim()); }}><div className="search-field"><Icon name="search" size={18} /><input aria-label="Tìm tài liệu" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Tìm theo tiêu đề hoặc mô tả…" /></div><select aria-label="Lọc danh mục" value={categoryId} onChange={(e) => { setPage(1); setCategoryId(e.target.value); }}><option value="">Tất cả danh mục</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select><button className="button button--secondary" type="submit">Áp dụng</button></form>{loading ? <PageLoader /> : error ? <ErrorState message={error} onRetry={load} /> : documents.length === 0 ? <EmptyState title="Không có tài liệu" description="Không tìm thấy tài liệu phù hợp." /> : <><div className="table-wrap"><table><thead><tr><th>Tài liệu</th><th>Trạng thái</th><th>Ngày đăng</th><th>Tương tác</th><th>Thao tác</th></tr></thead><tbody>{documents.map((doc) => <tr key={doc.id}><td><div className="document-cell"><span className="file-mark"><Icon name="file" size={18} /></span><div><Link to={`/documents/${doc.id}`}><strong>{doc.title}</strong></Link><span>{doc.file_type}</span></div></div></td><td><StatusBadge value={doc.status} /></td><td>{formatDate(doc.created_at)}</td><td><span className="inline-metrics"><span><Icon name="eye" size={14} /> {doc.view_count}</span><span><Icon name="download" size={14} /> {doc.download_count}</span></span></td><td><div className="table-actions"><select aria-label={`Trạng thái ${doc.title}`} value={doc.status} disabled={busy === doc.id} onChange={(e) => changeStatus(doc, e.target.value as DocumentStatus)}><option value="pending">Chờ duyệt</option><option value="approved">Đã duyệt</option><option value="rejected">Từ chối</option></select><button className="icon-button icon-button--danger" onClick={() => setDeleteTarget(doc)} aria-label={`Xóa ${doc.title}`}><Icon name="trash" size={17} /></button></div></td></tr>)}</tbody></table></div><Pagination data={pagination} onChange={setPage} /></>}<ConfirmDialog open={!!deleteTarget} title="Xóa tài liệu?" description={`Bạn sắp xóa “${deleteTarget?.title ?? ''}”. Thao tác này không thể hoàn tác.`} confirmLabel="Xóa tài liệu" busy={busy === deleteTarget?.id} onConfirm={remove} onClose={() => setDeleteTarget(undefined)} /></>;
+  const notify = useToast();
+  const [documents, setDocuments] = useState<StudyDocument[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [pagination, setPagination] = useState<PaginationData>();
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [query, setQuery] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<StudyDocument>();
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [docResponse, categoryResponse] = await Promise.all([
+        adminApi.documents({
+          page,
+          limit: 10,
+          keyword: query,
+          categoryId,
+          sortedBy: 'created_at',
+          order: 'DESC',
+        }),
+        categoryApi.list(),
+      ]);
+      setDocuments(docResponse.documents);
+      setPagination(docResponse.pagination);
+      setCategories(categoryResponse.data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [categoryId, page, query]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const changeStatus = async (doc: StudyDocument, status: DocumentStatus) => {
+    setBusy(doc.id);
+    try {
+      const response = await adminApi.changeDocumentStatus(doc.id, status);
+      notify(response.message, 'success');
+      await load();
+    } catch (err) {
+      notify(getErrorMessage(err), 'error');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  const remove = async () => {
+    if (!deleteTarget) return;
+    setBusy(deleteTarget.id);
+    try {
+      const response = await adminApi.removeDocument(deleteTarget.id);
+      notify(response.message, 'success');
+      setDeleteTarget(undefined);
+      await load();
+    } catch (err) {
+      notify(getErrorMessage(err), 'error');
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className="bamboo-admin-page">
+      <AdminTitle
+        eyebrow="Kiểm duyệt nội dung"
+        title="Quản lý tài liệu"
+        description="Phê duyệt, từ chối hoặc gỡ bỏ tài liệu trên toàn bộ nền tảng StudyHub."
+      />
+
+      {/* Toolbar Filter */}
+      <form
+        className="bamboo-admin-toolbar"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setPage(1);
+          setQuery(keyword.trim());
+        }}
+        role="search"
+      >
+        <div className="bamboo-admin-search-field">
+          <Icon name="search" size={18} />
+          <input
+            aria-label="Tìm kiếm tài liệu"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tìm theo tiêu đề hoặc từ khóa tài liệu…"
+          />
+        </div>
+
+        <select
+          aria-label="Lọc theo danh mục"
+          value={categoryId}
+          onChange={(e) => {
+            setPage(1);
+            setCategoryId(e.target.value);
+          }}
+          className="bamboo-admin-select"
+        >
+          <option value="">Tất cả danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+
+        <button className="bamboo-btn bamboo-btn--secondary" type="submit">
+          Lọc dữ liệu
+        </button>
+      </form>
+
+      {/* Document Table */}
+      {loading ? (
+        <PageLoader label="Đang tải danh sách tài liệu…" />
+      ) : error ? (
+        <ErrorState message={error} onRetry={load} />
+      ) : documents.length === 0 ? (
+        <EmptyState
+          title="Không có tài liệu nào"
+          description="Không tìm thấy tài liệu phù hợp với điều kiện tìm kiếm hiện tại."
+        />
+      ) : (
+        <>
+          <div className="bamboo-table-wrap">
+            <table className="bamboo-table">
+              <thead>
+                <tr>
+                  <th>Tài liệu</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Lượt tương tác</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc) => (
+                  <tr key={doc.id}>
+                    <td>
+                      <div className="bamboo-table-doc-cell">
+                        <span className="bamboo-table-doc-cell__mark">
+                          <Icon name="file" size={18} />
+                        </span>
+                        <div>
+                          <Link className="bamboo-table-doc-cell__title" to={`/documents/${doc.id}`}>
+                            <strong>{doc.title}</strong>
+                          </Link>
+                          <small>{doc.category_title ?? 'Chưa phân loại'}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <StatusBadge value={doc.status} />
+                    </td>
+                    <td>{formatDate(doc.created_at)}</td>
+                    <td>
+                      <div className="bamboo-metrics-pill">
+                        <span><Icon name="eye" size={13} /> {doc.view_count}</span>
+                        <span><Icon name="download" size={13} /> {doc.download_count}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="bamboo-table-actions">
+                        <select
+                          aria-label={`Trạng thái ${doc.title}`}
+                          value={doc.status}
+                          disabled={busy === doc.id}
+                          onChange={(e) => changeStatus(doc, e.target.value as DocumentStatus)}
+                          className="bamboo-select-sm"
+                        >
+                          <option value="pending">Chờ duyệt</option>
+                          <option value="approved">Đã duyệt</option>
+                          <option value="rejected">Từ chối</option>
+                        </select>
+                        <button
+                          type="button"
+                          className="bamboo-icon-btn bamboo-icon-btn--danger"
+                          onClick={() => setDeleteTarget(doc)}
+                          aria-label={`Xóa tài liệu ${doc.title}`}
+                          title="Xóa tài liệu"
+                        >
+                          <Icon name="trash" size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Pagination data={pagination} onChange={setPage} />
+        </>
+      )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Xóa tài liệu vĩnh viễn?"
+        description={`Bạn sắp xóa tài liệu “${deleteTarget?.title ?? ''}”. Toàn bộ liên kết, đánh giá và tệp lưu trữ sẽ không thể phục hồi.`}
+        confirmLabel="Xóa tài liệu"
+        busy={busy === deleteTarget?.id}
+        onConfirm={remove}
+        onClose={() => setDeleteTarget(undefined)}
+      />
+    </div>
+  );
 }

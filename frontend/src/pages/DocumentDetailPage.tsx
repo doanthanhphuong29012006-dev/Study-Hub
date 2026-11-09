@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { EmptyState, ErrorState, PageLoader } from '../components/AsyncState';
+import { ErrorState, PageLoader } from '../components/AsyncState';
 import { Icon } from '../components/Icon';
 import { Pagination } from '../components/Pagination';
 import { StatusBadge } from '../components/StatusBadge';
@@ -151,79 +151,38 @@ export function DocumentDetailPage() {
     }
   };
 
-  const deleteDocument = async () => {
-    setBusy('delete-document');
+  const removeDocument = async () => {
+    setBusy('delete');
     try {
       const response = await documentApi.remove(id);
       notify(response.message, 'success');
-      navigate('/my-documents', { replace: true });
+      navigate('/my-documents');
     } catch (err) {
       notify(getErrorMessage(err), 'error');
       setBusy('');
-      setDeleteOpen(false);
     }
   };
 
   const submitReview = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (reviewForm.comment.length > 500) {
-      setFormError('Nội dung đánh giá không vượt quá 500 ký tự.');
-      return;
-    }
     setBusy('review');
-    setFormError('');
     try {
-      const body = { rating: reviewForm.rating, comment: reviewForm.comment.trim() || null };
-      const oldReview = reviews.find((item) => item.id === editingReview);
-      const response = editingReview
-        ? await reviewApi.update(editingReview, body)
-        : await documentApi.createReview(id, body);
-      setDocument((current) => {
-        if (!current) return current;
-        const count = Number(current.review_count);
-        const average = Number(current.average_rating);
-        if (editingReview && oldReview && count > 0)
-          return {
-            ...current,
-            average_rating: Math.max(0, (average * count - Number(oldReview.rating) + reviewForm.rating) / count),
-          };
-        const nextCount = count + 1;
-        return { ...current, review_count: nextCount, average_rating: (average * count + reviewForm.rating) / nextCount };
-      });
-      notify(response.message, 'success');
+      if (editingReview) {
+        const response = await reviewApi.update(editingReview, {
+          rating: reviewForm.rating,
+          comment: reviewForm.comment.trim() || null,
+        });
+        notify(response.message, 'success');
+        setEditingReview('');
+      } else {
+        const response = await documentApi.createReview(id, {
+          rating: reviewForm.rating,
+          comment: reviewForm.comment.trim() || null,
+        });
+        notify(response.message, 'success');
+      }
       setReviewForm({ rating: 5, comment: '' });
-      setEditingReview('');
-      await loadReviews();
-    } catch (err) {
-      setFormError(getErrorMessage(err));
-    } finally {
-      setBusy('');
-    }
-  };
-
-  const startEditReview = (review: Review) => {
-    setEditingReview(review.id);
-    setReviewForm({ rating: Number(review.rating), comment: review.comment ?? '' });
-    window.document.getElementById('review-form')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const deleteReview = async (reviewId: string) => {
-    if (!window.confirm('Bạn chắc chắn muốn xóa đánh giá này?')) return;
-    setBusy(reviewId);
-    try {
-      const removedReview = reviews.find((item) => item.id === reviewId);
-      const response = await reviewApi.remove(reviewId);
-      setDocument((current) => {
-        if (!current || !removedReview) return current;
-        const count = Number(current.review_count);
-        const nextCount = Math.max(0, count - 1);
-        const nextAverage = nextCount
-          ? Math.max(0, (Number(current.average_rating) * count - Number(removedReview.rating)) / nextCount)
-          : 0;
-        return { ...current, review_count: nextCount, average_rating: nextAverage };
-      });
-      notify(response.message, 'success');
-      await loadReviews();
+      await Promise.all([loadDocument(), loadReviews()]);
     } catch (err) {
       notify(getErrorMessage(err), 'error');
     } finally {
@@ -231,123 +190,204 @@ export function DocumentDetailPage() {
     }
   };
 
-  if (loading)
+  const removeReview = async (reviewId: string) => {
+    setBusy(`review-${reviewId}`);
+    try {
+      const response = await reviewApi.remove(reviewId);
+      notify(response.message, 'success');
+      await Promise.all([loadDocument(), loadReviews()]);
+    } catch (err) {
+      notify(getErrorMessage(err), 'error');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  if (loading) {
     return (
-      <section className="container page-section">
-        <PageLoader />
+      <section className="container bamboo-detail-page">
+        <PageLoader label="Đang tải thông tin tài liệu…" />
       </section>
     );
-  if (error || !document)
+  }
+
+  if (error || !document) {
     return (
-      <section className="container page-section">
-        <ErrorState message={error || 'Không tìm thấy tài liệu.'} onRetry={loadDocument} />
+      <section className="container bamboo-detail-page">
+        <ErrorState message={error || 'Tài liệu không tồn tại.'} onRetry={loadDocument} />
       </section>
     );
-  const canManage = user?.role === 'admin' || user?.id === document.uploader_id;
-  const isImage = document.file_type?.startsWith('image/') || /\.(jpe?g|png|webp|gif|svg)($|\?)/i.test(document.file_url);
-  const isPdf = document.file_type === 'application/pdf' || /\.pdf($|\?)/i.test(document.file_url);
+  }
+
+  const isOwner = user?.id === document.uploader_id;
+  const canManage = isOwner || user?.role === 'admin';
+
+  const isImage =
+    document.file_type?.startsWith('image/') ||
+    /\.(png|jpe?g|webp|gif|svg)$/i.test(document.file_url);
+  const isPdf =
+    document.file_type === 'application/pdf' ||
+    /\.pdf$/i.test(document.file_url);
   const isOffice =
-    document.file_type?.includes('word') ||
-    document.file_type?.includes('officedocument') ||
-    document.file_type?.includes('presentation') ||
-    document.file_type?.includes('spreadsheet') ||
-    /\.(docx?|pptx?|xlsx?)($|\?)/i.test(document.file_url);
+    /\.(docx?|pptx?|xlsx?)$/i.test(document.file_url) ||
+    document.file_type?.includes('wordprocessingml') ||
+    document.file_type?.includes('presentationml') ||
+    document.file_type?.includes('spreadsheetml');
+  const isGoogleDrive =
+    document.file_url?.includes('drive.google.com') ||
+    document.file_url?.includes('docs.google.com');
   const isLink = document.file_type === 'link';
-  const googleDriveMatch = document.file_url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  const isGoogleDrive = Boolean(googleDriveMatch);
-  const googleDrivePreviewUrl = googleDriveMatch ? `https://drive.google.com/file/d/${googleDriveMatch[1]}/preview` : null;
+
+  let googleDrivePreviewUrl = '';
+  if (isGoogleDrive) {
+    const fileIdMatch = document.file_url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch && fileIdMatch[1]) {
+      googleDrivePreviewUrl = `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+    }
+  }
 
   return (
-    <section className="container page-section detail-page">
-      <nav className="breadcrumbs" aria-label="Đường dẫn">
-        <Link to="/">Thư viện</Link>
-        <Icon name="chevron" size={14} />
+    <div className="container bamboo-detail-page">
+      {/* Breadcrumb Navigation */}
+      <nav className="bamboo-breadcrumbs" aria-label="Đường dẫn trang">
+        <Link to="/">Trang chủ</Link>
+        <span className="bamboo-breadcrumbs__sep">/</span>
         <span>{document.category_title ?? 'Tài liệu'}</span>
+        <span className="bamboo-breadcrumbs__sep">/</span>
+        <span className="bamboo-breadcrumbs__current">{document.title}</span>
       </nav>
-      <div className="detail-layout">
-        <article className="detail-main">
-          <header className="detail-header">
-            <div className="file-mark file-mark--large">
-              <Icon name="file" size={31} />
+
+      {/* Detail Header Hero */}
+      <header className="bamboo-detail-header">
+        <div className="bamboo-detail-header__badges">
+          <span className="bamboo-pill">
+            <Icon name="leaf" size={14} />
+            <span>{document.category_title ?? 'Học liệu'}</span>
+          </span>
+          <StatusBadge value={document.status} />
+        </div>
+
+        <h1 className="bamboo-detail-header__title">{document.title}</h1>
+
+        <div className="bamboo-detail-header__meta">
+          <div className="bamboo-author-tag">
+            <Avatar src={document.uploader_avatar} name={document.uploader_name ?? 'Thành viên'} size="sm" />
+            <div className="bamboo-author-tag__info">
+              <span>Được chia sẻ bởi <strong>{document.uploader_name ?? 'Thành viên StudyHub'}</strong></span>
+              <small>{formatDate(document.created_at)}</small>
             </div>
-            <div>
-              <div className="detail-header__labels">
-                <span className="eyebrow">{document.category_title ?? (isLink ? 'Liên kết' : document.file_type)}</span>
-                <StatusBadge value={document.status} />
-              </div>
-              <h1>{document.title}</h1>
-              <div className="author-line">
-                <Avatar src={document.uploader_avatar} name={document.uploader_name} size="sm" />
-                <span>
-                  Đăng bởi <strong>{document.uploader_name ?? 'Thành viên StudyHub'}</strong> ·{' '}
-                  {formatDate(document.created_at)}
-                </span>
-              </div>
-            </div>
-          </header>
-          <div className="detail-actions">
-            <button className="button button--primary" onClick={download} disabled={!!busy}>
-              <Icon name="download" size={18} />{' '}
-              {busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết' : 'Tải tài liệu'}
-            </button>
-            <button
-              className={`button button--secondary ${isSaved ? 'is-saved' : ''}`}
-              onClick={toggleSave}
-              disabled={!!busy}
-            >
-              <Icon name="bookmark" size={18} /> {isSaved ? 'Đã lưu' : 'Lưu lại'}
-            </button>
-            {canManage && (
-              <>
-                <button
-                  className="button button--ghost"
-                  onClick={() => setEditingDocument((value) => !value)}
-                >
-                  <Icon name="edit" size={17} /> Sửa
-                </button>
-                <button
-                  className="icon-button icon-button--danger"
-                  onClick={() => setDeleteOpen(true)}
-                  aria-label="Xóa tài liệu"
-                >
-                  <Icon name="trash" />
-                </button>
-              </>
-            )}
           </div>
+
+          <div className="bamboo-detail-header__stats">
+            <span title="Điểm đánh giá">
+              <Icon name="star" size={16} /> {Number(document.average_rating || 0).toFixed(1)} / 5.0
+            </span>
+            <span title="Lượt xem">
+              <Icon name="eye" size={16} /> {document.view_count ?? 0} lượt xem
+            </span>
+            <span title="Lượt tải về">
+              <Icon name="download" size={16} /> {document.download_count ?? 0} lượt tải
+            </span>
+          </div>
+        </div>
+
+        {/* Action Toolbar */}
+        <div className="bamboo-action-toolbar">
+          <button
+            type="button"
+            className="bamboo-btn bamboo-btn--primary"
+            onClick={download}
+            disabled={busy === 'download'}
+          >
+            <Icon name="download" size={18} />
+            <span>
+              {busy === 'download'
+                ? 'Đang chuẩn bị…'
+                : isLink
+                ? 'Mở liên kết tài liệu'
+                : 'Tải tài liệu về máy'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={`bamboo-btn bamboo-btn--secondary ${isSaved ? 'is-saved' : ''}`}
+            onClick={toggleSave}
+            disabled={busy === 'save'}
+            aria-pressed={isSaved}
+          >
+            <Icon name={isSaved ? 'bookmark' : 'bookmark'} size={18} />
+            <span>{isSaved ? 'Đã lưu trong tủ sách' : 'Lưu vào tủ sách'}</span>
+          </button>
+
+          {canManage && (
+            <div className="bamboo-action-toolbar__manage">
+              <button
+                type="button"
+                className="bamboo-btn bamboo-btn--ghost bamboo-btn--sm"
+                onClick={() => setEditingDocument((value) => !value)}
+              >
+                <Icon name="edit" size={16} /> Sửa thông tin
+              </button>
+              <button
+                type="button"
+                className="bamboo-btn bamboo-btn--ghost bamboo-btn--sm bamboo-btn--danger-ghost"
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Icon name="trash" size={16} /> Xóa tài liệu
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Layout Grid */}
+      <div className="bamboo-detail-layout">
+        {/* Left Column: Preview + Content + Reviews */}
+        <div className="bamboo-detail-main">
+          {/* Edit Form Modal/Inline Panel */}
           {editingDocument && (
-            <form className="form-card compact-form" onSubmit={saveDocumentEdit}>
-              {formError && (
-                <div className="form-alert" role="alert">
-                  {formError}
-                </div>
-              )}
-              <h2>Chỉnh sửa tài liệu</h2>
-              <div className="field">
-                <label htmlFor="edit-title">Tiêu đề</label>
+            <form className="bamboo-form-card bamboo-edit-form" onSubmit={saveDocumentEdit}>
+              <div className="bamboo-form-card__header">
+                <h2>Chỉnh sửa thông tin tài liệu</h2>
+                <button
+                  type="button"
+                  className="bamboo-icon-btn"
+                  onClick={() => setEditingDocument(false)}
+                  aria-label="Đóng form chỉnh sửa"
+                >
+                  <Icon name="close" size={18} />
+                </button>
+              </div>
+
+              {formError && <div className="bamboo-form-alert" role="alert">{formError}</div>}
+
+              <div className="bamboo-field">
+                <label htmlFor="edit-title">Tiêu đề tài liệu</label>
                 <input
                   id="edit-title"
-                  maxLength={255}
                   value={docForm.title}
                   onChange={(e) => setDocForm({ ...docForm, title: e.target.value })}
                 />
               </div>
-              <div className="field">
+
+              <div className="bamboo-field">
                 <label htmlFor="edit-category">Danh mục</label>
                 <select
                   id="edit-category"
                   value={docForm.categoryId}
                   onChange={(e) => setDocForm({ ...docForm, categoryId: e.target.value })}
                 >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
+                  {categories.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="field">
-                <label htmlFor="edit-description">Mô tả</label>
+
+              <div className="bamboo-field">
+                <label htmlFor="edit-description">Mô tả tóm tắt</label>
                 <textarea
                   id="edit-description"
                   rows={4}
@@ -355,38 +395,40 @@ export function DocumentDetailPage() {
                   onChange={(e) => setDocForm({ ...docForm, description: e.target.value })}
                 />
               </div>
-              <div className="form-actions">
+
+              <div className="bamboo-form-actions">
                 <button
-                  className="button button--ghost"
                   type="button"
+                  className="bamboo-btn bamboo-btn--ghost"
                   onClick={() => setEditingDocument(false)}
                 >
                   Hủy
                 </button>
-                <button className="button button--primary" disabled={busy === 'edit-document'}>
+                <button
+                  type="submit"
+                  className="bamboo-btn bamboo-btn--primary"
+                  disabled={busy === 'edit-document'}
+                >
                   {busy === 'edit-document' ? 'Đang lưu…' : 'Lưu thay đổi'}
                 </button>
               </div>
             </form>
           )}
-          <section className="content-section">
-            <h2>Giới thiệu tài liệu</h2>
-            <p className="document-description">
-              {document.description || 'Người đăng chưa thêm mô tả cho tài liệu này.'}
-            </p>
-          </section>
-          <section className="content-section document-preview-section">
-            <div className="document-preview__header">
-              <div className="document-preview__title">
-                <Icon name="eye" size={22} />
+
+          {/* Document Preview Section */}
+          <section className="bamboo-preview-section">
+            <div className="bamboo-preview-section__header">
+              <div className="bamboo-preview-section__title">
+                <Icon name="eye" size={20} />
                 <h2>Xem trước tài liệu</h2>
               </div>
-              <div className="document-preview__actions">
+
+              <div className="bamboo-preview-section__tools">
                 {isPdf && (
                   <button
                     type="button"
                     onClick={() => setUseGoogleViewer((prev) => !prev)}
-                    className="button button--ghost button--small"
+                    className="bamboo-btn bamboo-btn--ghost bamboo-btn--sm"
                     title="Chuyển đổi giữa trình đọc trực tiếp và Google Docs Viewer"
                   >
                     {useGoogleViewer ? 'Dùng trình đọc trực tiếp' : 'Dùng Google Docs Viewer'}
@@ -396,22 +438,20 @@ export function DocumentDetailPage() {
                   href={document.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="button button--ghost button--small"
+                  className="bamboo-btn bamboo-btn--ghost bamboo-btn--sm"
                 >
-                  <Icon name="arrow" size={14} /> Mở tab mới
+                  <Icon name="external" size={14} /> Mở tab mới
                 </a>
               </div>
             </div>
 
+            {/* Viewer Display */}
             {isImage ? (
-              <div className="preview-image-box">
-                <img
-                  src={document.file_url}
-                  alt={document.title}
-                />
+              <div className="bamboo-preview-frame bamboo-preview-frame--image">
+                <img src={document.file_url} alt={document.title} />
               </div>
             ) : isPdf ? (
-              <div className={`preview-frame ${useGoogleViewer ? '' : 'preview-frame--dark'}`}>
+              <div className={`bamboo-preview-frame ${useGoogleViewer ? '' : 'bamboo-preview-frame--dark'}`}>
                 {useGoogleViewer ? (
                   <iframe
                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
@@ -425,14 +465,14 @@ export function DocumentDetailPage() {
                 )}
               </div>
             ) : isOffice ? (
-              <div className="preview-frame">
+              <div className="bamboo-preview-frame">
                 <iframe
                   src={`https://docs.google.com/viewer?url=${encodeURIComponent(document.file_url)}&embedded=true`}
                   title={document.title}
                 />
               </div>
             ) : isGoogleDrive && googleDrivePreviewUrl ? (
-              <div className="preview-frame">
+              <div className="bamboo-preview-frame">
                 <iframe
                   src={googleDrivePreviewUrl}
                   title={document.title}
@@ -440,184 +480,239 @@ export function DocumentDetailPage() {
                 />
               </div>
             ) : (
-              <div className="preview-fallback-box">
-                <div className="preview-fallback-box__icon">
+              <div className="bamboo-fallback-preview">
+                <div className="bamboo-fallback-preview__icon">
                   <Icon name="file" size={44} />
                 </div>
                 <h3>Tài liệu đính kèm</h3>
                 <p>
                   {isLink
-                    ? 'Tài liệu này được chia sẻ dưới dạng liên kết ngoài. Bạn có thể mở liên kết để xem nội dung chi tiết.'
-                    : 'Định dạng tệp tin này không hỗ trợ đọc trực tiếp trong trình duyệt. Bạn có thể tải về để mở trên thiết bị.'}
+                    ? 'Tài liệu này được lưu trữ dưới dạng liên kết ngoài. Bạn có thể mở liên kết để xem đầy đủ nội dung.'
+                    : 'Định dạng tệp tin này không hỗ trợ đọc trực tiếp trong trình duyệt. Bạn có thể tải về để mở trên máy tính hoặc điện thoại.'}
                 </p>
                 <button
                   type="button"
-                  className="button button--primary"
+                  className="bamboo-btn bamboo-btn--primary"
                   onClick={download}
                   disabled={!!busy}
                 >
-                  <Icon name="download" size={17} />
-                  {busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết tài liệu' : 'Tải tài liệu về máy'}
+                  <Icon name="download" size={16} />
+                  <span>{busy === 'download' ? 'Đang chuẩn bị…' : isLink ? 'Mở liên kết' : 'Tải tài liệu về'}</span>
                 </button>
               </div>
             )}
           </section>
-          <section className="content-section reviews-section">
-            <div className="section-heading section-heading--compact">
+
+          {/* Description Section */}
+          <section className="bamboo-content-section">
+            <h2 className="bamboo-content-section__heading">Giới thiệu & Ghi chú tài liệu</h2>
+            <div className="bamboo-description-text">
+              {document.description || 'Người chia sẻ chưa thêm mô tả chi tiết cho tài liệu này.'}
+            </div>
+          </section>
+
+          {/* Reviews & Community Rating Section */}
+          <section className="bamboo-content-section">
+            <div className="bamboo-reviews-header">
               <div>
-                <span className="eyebrow">Cộng đồng nhận xét</span>
-                <h2>{document.review_count} đánh giá</h2>
+                <h2 className="bamboo-content-section__heading">Đánh giá từ cộng đồng</h2>
+                <p className="bamboo-reviews-header__count">
+                  {document.review_count ?? reviews.length} lượt đánh giá từ người học
+                </p>
               </div>
-              <div className="rating-summary">
-                <Icon name="star" size={23} />
+
+              <div className="bamboo-score-badge">
+                <Icon name="star" size={24} />
                 <strong>{Number(document.average_rating || 0).toFixed(1)}</strong>
-                <span>/ 5</span>
+                <span>/ 5.0</span>
               </div>
             </div>
-            <form id="review-form" className="review-form" onSubmit={submitReview}>
-              <h3>{editingReview ? 'Chỉnh sửa đánh giá' : 'Bạn thấy tài liệu này thế nào?'}</h3>
-              {formError && !editingDocument && (
-                <div className="form-alert" role="alert">
-                  {formError}
-                </div>
-              )}
-              <fieldset className="rating-input">
-                <legend>Chọn số sao</legend>
-                {[1, 2, 3, 4, 5].map((rating) => (
+
+            {/* Review Input Box */}
+            <form className="bamboo-review-form" onSubmit={submitReview}>
+              <h3>{editingReview ? 'Chỉnh sửa đánh giá của bạn' : 'Gửi nhận xét của bạn'}</h3>
+
+              <div className="bamboo-star-picker" role="radiogroup" aria-label="Chọn số sao đánh giá">
+                {[1, 2, 3, 4, 5].map((star) => (
                   <button
-                    key={rating}
+                    key={star}
                     type="button"
-                    className={rating <= reviewForm.rating ? 'is-active' : ''}
-                    onClick={() => setReviewForm({ ...reviewForm, rating })}
-                    aria-label={`${rating} sao`}
+                    className={`bamboo-star-picker__btn ${reviewForm.rating >= star ? 'is-active' : ''}`}
+                    onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    aria-label={`${star} sao`}
                   >
-                    <Icon name="star" size={24} />
+                    <Icon name="star" size={22} />
                   </button>
                 ))}
-              </fieldset>
-              <label className="sr-only" htmlFor="review-comment">
-                Nội dung đánh giá
-              </label>
-              <textarea
-                id="review-comment"
-                rows={3}
-                maxLength={500}
-                value={reviewForm.comment}
-                onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                placeholder="Chia sẻ cảm nhận của bạn (không bắt buộc)…"
-              />
-              <div className="review-form__footer">
-                <small>{reviewForm.comment.length}/500</small>
-                <div>
-                  {editingReview && (
-                    <button
-                      className="button button--ghost button--small"
-                      type="button"
-                      onClick={() => {
-                        setEditingReview('');
-                        setReviewForm({ rating: 5, comment: '' });
-                      }}
-                    >
-                      Hủy sửa
-                    </button>
-                  )}
+                <span className="bamboo-star-picker__label">
+                  {reviewForm.rating === 5 && 'Tuyệt vời, tài liệu rất hữu ích!'}
+                  {reviewForm.rating === 4 && 'Rất tốt, nội dung đầy đủ.'}
+                  {reviewForm.rating === 3 && 'Bình thường, có thể cải thiện.'}
+                  {reviewForm.rating <= 2 && 'Cần hoàn thiện thêm.'}
+                </span>
+              </div>
+
+              <div className="bamboo-field">
+                <textarea
+                  rows={3}
+                  value={reviewForm.comment}
+                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                  placeholder="Chia sẻ cảm nhận, lời cảm ơn hoặc lưu ý dành cho người học khác…"
+                />
+              </div>
+
+              <div className="bamboo-review-form__footer">
+                {editingReview ? (
                   <button
-                    className="button button--primary button--small"
-                    disabled={busy === 'review'}
+                    type="button"
+                    className="bamboo-btn bamboo-btn--ghost bamboo-btn--sm"
+                    onClick={() => {
+                      setEditingReview('');
+                      setReviewForm({ rating: 5, comment: '' });
+                    }}
                   >
-                    {busy === 'review' ? 'Đang gửi…' : editingReview ? 'Lưu đánh giá' : 'Gửi đánh giá'}
+                    Hủy sửa
                   </button>
-                </div>
+                ) : <span />}
+
+                <button
+                  type="submit"
+                  className="bamboo-btn bamboo-btn--primary bamboo-btn--sm"
+                  disabled={busy === 'review'}
+                >
+                  <Icon name="check" size={16} />
+                  <span>{busy === 'review' ? 'Đang gửi…' : editingReview ? 'Cập nhật nhận xét' : 'Gửi đánh giá'}</span>
+                </button>
               </div>
             </form>
+
+            {/* Review List */}
             {reviews.length === 0 ? (
-              <EmptyState
-                title="Chưa có đánh giá"
-                description="Hãy là người đầu tiên chia sẻ cảm nhận về tài liệu."
-              />
+              <div className="bamboo-reviews-empty">
+                <Icon name="star" size={24} />
+                <p>Chưa có đánh giá nào cho tài liệu này. Hãy là người đầu tiên để lại nhận xét!</p>
+              </div>
             ) : (
-              <div className="review-list">
-                {reviews.map((review) => (
-                  <article className="review-item" key={review.id}>
-                    <Avatar src={review.avatar} name={review.full_name} />
-                    <div>
-                      <header>
+              <div className="bamboo-review-list">
+                {reviews.map((item) => (
+                  <article key={item.id} className="bamboo-review-card">
+                    <header className="bamboo-review-card__header">
+                      <div className="bamboo-review-card__user">
+                        <Avatar src={item.avatar} name={item.full_name} size="sm" />
                         <div>
-                          <strong>{review.full_name}</strong>
-                          <span>{formatDate(review.created_at)}</span>
+                          <strong>{item.full_name}</strong>
+                          <small>{formatDate(item.created_at)}</small>
                         </div>
-                        <div className="stars" aria-label={`${review.rating} trên 5 sao`}>
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <span
-                              className={star <= Number(review.rating) ? 'is-active' : ''}
-                              key={star}
-                            >
-                              <Icon name="star" size={14} />
-                            </span>
-                          ))}
-                        </div>
-                      </header>
-                      <p>{review.comment || <em>Không có nhận xét.</em>}</p>
-                      {(user?.id === review.user_id || user?.role === 'admin') && (
-                        <div className="review-item__actions">
-                          {user?.id === review.user_id && (
-                            <button onClick={() => startEditReview(review)}>
-                              <Icon name="edit" size={14} /> Sửa
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteReview(review.id)}
-                            disabled={busy === review.id}
+                      </div>
+
+                      <div className="bamboo-review-card__stars">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span
+                            key={i}
+                            className={`bamboo-star ${i < Number(item.rating) ? 'is-active' : ''}`}
                           >
-                            <Icon name="trash" size={14} /> Xóa
+                            <Icon name="star" size={14} />
+                          </span>
+                        ))}
+                      </div>
+                    </header>
+
+                    {item.comment && <p className="bamboo-review-card__comment">{item.comment}</p>}
+
+                    {(user?.id === item.user_id || user?.role === 'admin') && (
+                      <footer className="bamboo-review-card__footer">
+                        {user?.id === item.user_id && (
+                          <button
+                            type="button"
+                            className="bamboo-btn-link"
+                            onClick={() => {
+                              setEditingReview(item.id);
+                              setReviewForm({ rating: Number(item.rating), comment: item.comment ?? '' });
+                            }}
+                          >
+                            <Icon name="edit" size={13} /> Sửa
                           </button>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                        <button
+                          type="button"
+                          className="bamboo-btn-link bamboo-btn-link--danger"
+                          onClick={() => removeReview(item.id)}
+                          disabled={busy === `review-${item.id}`}
+                        >
+                          <Icon name="trash" size={13} /> Xóa
+                        </button>
+                      </footer>
+                    )}
                   </article>
                 ))}
+
+                <Pagination data={reviewPagination} onChange={setReviewPage} />
               </div>
             )}
-            <Pagination data={reviewPagination} onChange={setReviewPage} />
           </section>
-        </article>
-        <aside className="detail-sidebar">
-          <div className="info-card">
-            <h2>Thông tin tệp</h2>
-            <dl>
-              <div>
-                <dt>Định dạng</dt>
-                <dd>{isLink ? 'Liên kết (Link)' : document.file_type}</dd>
+        </div>
+
+        {/* Right Column: Specifications & Quality Sidebar */}
+        <aside className="bamboo-detail-sidebar">
+          {/* Metadata Card */}
+          <div className="bamboo-info-card">
+            <h3 className="bamboo-info-card__title">
+              <Icon name="layers" size={16} /> Thông số học liệu
+            </h3>
+
+            <dl className="bamboo-meta-list">
+              <div className="bamboo-meta-item">
+                <dt>Định dạng tệp</dt>
+                <dd>
+                  <span className="bamboo-badge bamboo-badge--sm">{document.file_type || 'FILE'}</span>
+                </dd>
               </div>
-              <div>
+              <div className="bamboo-meta-item">
                 <dt>Dung lượng</dt>
                 <dd>{isLink || Number(document.file_size) === 0 ? 'Trực tuyến' : formatFileSize(document.file_size)}</dd>
               </div>
-              <div>
-                <dt>Lượt xem</dt>
-                <dd>{document.view_count}</dd>
+              <div className="bamboo-meta-item">
+                <dt>Lượt tải xuống</dt>
+                <dd>{document.download_count ?? 0} lần</dd>
               </div>
-              <div>
-                <dt>{isLink ? 'Lượt truy cập' : 'Lượt tải'}</dt>
-                <dd>{document.download_count}</dd>
+              <div className="bamboo-meta-item">
+                <dt>Lượt xem tài liệu</dt>
+                <dd>{document.view_count ?? 0} lượt</dd>
+              </div>
+              <div className="bamboo-meta-item">
+                <dt>Ngày đăng tải</dt>
+                <dd>{formatDate(document.created_at)}</dd>
+              </div>
+              <div className="bamboo-meta-item">
+                <dt>Quyền truy cập</dt>
+                <dd className="bamboo-color--green">Công khai & Miễn phí</dd>
               </div>
             </dl>
           </div>
-          <div className="info-note">
-            <Icon name="heart" />
-            <p>Hãy tôn trọng bản quyền và chỉ sử dụng tài liệu cho mục đích học tập.</p>
+
+          {/* Academic Community Pledge Card */}
+          <div className="bamboo-trust-card">
+            <div className="bamboo-trust-card__icon">
+              <Icon name="shield" size={20} />
+            </div>
+            <h4>Cam kết tri thức mở</h4>
+            <p>
+              Tài liệu được chia sẻ phi thương mại nhằm mục đích phục vụ cộng đồng học sinh, sinh
+              viên và nghiên cứu sinh. Hãy cùng bảo vệ sự trong sáng của học thuật.
+            </p>
           </div>
         </aside>
       </div>
+
       <ConfirmDialog
         open={deleteOpen}
-        title="Xóa tài liệu?"
-        description="Tài liệu và dữ liệu liên quan sẽ bị xóa khỏi hệ thống. Thao tác này không thể hoàn tác."
+        title="Xác nhận xóa tài liệu?"
+        description={`Bạn có chắc chắn muốn xóa tài liệu “${document.title}”? Mọi dữ liệu và đánh giá liên quan sẽ bị xóa vĩnh viễn.`}
         confirmLabel="Xóa tài liệu"
-        busy={busy === 'delete-document'}
-        onConfirm={deleteDocument}
+        busy={busy === 'delete'}
+        onConfirm={removeDocument}
         onClose={() => setDeleteOpen(false)}
       />
-    </section>
+    </div>
   );
 }

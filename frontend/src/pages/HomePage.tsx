@@ -19,7 +19,11 @@ export function HomePage() {
 
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
   const categoryId = searchParams.get('categoryId') ?? '';
-  const sortedBy = (searchParams.get('sortedBy') ?? 'created_at') as 'created_at' | 'review_count' | 'view_count' | 'download_count';
+  const sortedBy = (searchParams.get('sortedBy') ?? 'created_at') as
+    | 'created_at'
+    | 'review_count'
+    | 'view_count'
+    | 'download_count';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -27,7 +31,14 @@ export function HomePage() {
     try {
       const [categoryResponse, documentResponse] = await Promise.all([
         categoryApi.list(),
-        documentApi.list({ page, limit: 9, categoryId, keyword: searchParams.get('keyword') ?? '', sortedBy, order: 'DESC' }),
+        documentApi.list({
+          page,
+          limit: 9,
+          categoryId,
+          keyword: searchParams.get('keyword') ?? '',
+          sortedBy,
+          order: 'DESC',
+        }),
       ]);
       setCategories(categoryResponse.data);
       setDocuments(documentResponse.documents);
@@ -39,7 +50,9 @@ export function HomePage() {
     }
   }, [categoryId, page, searchParams, sortedBy]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const updateFilter = (key: string, value: string) => {
     const next = new URLSearchParams(searchParams);
@@ -55,63 +68,240 @@ export function HomePage() {
   };
 
   return (
-    <>
-      <section className="hero">
-        <div className="container hero__inner">
-          <div className="hero__copy">
-            <span className="pill"><span /> Không gian học tập mở</span>
-            <h1>Tri thức tốt hơn khi được <em>chia sẻ.</em></h1>
-            <p>Khám phá tài liệu học tập chất lượng, đóng góp kiến thức và cùng cộng đồng StudyHub tiến bộ mỗi ngày.</p>
-            <form className="hero-search" onSubmit={submitSearch} role="search">
-              <Icon name="search" />
-              <label className="sr-only" htmlFor="hero-keyword">Tìm kiếm tài liệu</label>
-              <input id="hero-keyword" value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Tìm theo tiêu đề hoặc nội dung…" />
-              <button className="button button--dark" type="submit">Tìm kiếm</button>
+    <div className="bamboo-home">
+      {/* Hero Section — Bamboo Knowledge Forest */}
+      <section className="bamboo-hero">
+        <div className="container bamboo-hero__inner">
+          <div className="bamboo-hero__content">
+            <div className="bamboo-pill">
+              <span className="bamboo-pill__dot" aria-hidden="true" />
+              <span>Hệ sinh thái học liệu mở StudyHub</span>
+            </div>
+
+            <h1 className="bamboo-hero__title">
+              Vươn mình cùng tri thức, <em>sẻ chia</em> như rừng tre xanh.
+            </h1>
+
+            <p className="bamboo-hero__desc">
+              Khám phá và đóng góp tài liệu học tập, giáo trình chuyên ngành, đề thi và đồ án
+              chất lượng cao từ sinh viên và giảng viên khắp cả nước.
+            </p>
+
+            {/* Central Search Widget */}
+            <form className="bamboo-search-form" onSubmit={submitSearch} role="search">
+              <span className="bamboo-search-form__icon" aria-hidden="true">
+                <Icon name="search" size={20} />
+              </span>
+              <label className="sr-only" htmlFor="bamboo-search-input">
+                Tìm kiếm tài liệu học tập
+              </label>
+              <input
+                id="bamboo-search-input"
+                className="bamboo-search-form__input"
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="Tìm giáo trình, đề thi, bài tập hoặc tác giả…"
+              />
+              {keyword && (
+                <button
+                  type="button"
+                  className="bamboo-search-form__clear"
+                  onClick={() => {
+                    setKeyword('');
+                    updateFilter('keyword', '');
+                  }}
+                  aria-label="Xóa từ khóa tìm kiếm"
+                >
+                  <Icon name="close" size={16} />
+                </button>
+              )}
+              <button className="bamboo-btn bamboo-btn--primary" type="submit">
+                Tìm kiếm
+              </button>
             </form>
-            <div className="hero__notes"><span><Icon name="check" size={16} /> Tải lên miễn phí</span><span><Icon name="check" size={16} /> Đánh giá cộng đồng</span></div>
+
+            {/* Value Trust Markers */}
+            <div className="bamboo-hero__trust">
+              <span className="bamboo-hero__trust-item">
+                <Icon name="check" size={16} /> Học liệu mở & miễn phí
+              </span>
+              <span className="bamboo-hero__trust-item">
+                <Icon name="check" size={16} /> Đánh giá minh bạch
+              </span>
+              <span className="bamboo-hero__trust-item">
+                <Icon name="check" size={16} /> Xem trước trực tiếp
+              </span>
+            </div>
           </div>
-          <div className="hero__art" aria-hidden="true">
-            <div className="paper paper--one"><span>STUDY NOTES</span><strong>01</strong><i /></div>
-            <div className="paper paper--two"><Icon name="book" size={52} /><strong>Share & learn</strong></div>
-            <div className="hero__stamp">OPEN<br />KNOWLEDGE</div>
+
+          {/* Bamboo Abstract Knowledge Visual */}
+          <div className="bamboo-hero__visual" aria-hidden="true">
+            <div className="bamboo-stalk-art">
+              {/* Culm 1 */}
+              <div className="bamboo-culm bamboo-culm--1">
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <div className="bamboo-leaf-sprout bamboo-leaf-sprout--left">
+                  <Icon name="leaf" size={24} />
+                </div>
+              </div>
+              {/* Culm 2 with Floating Knowledge Card */}
+              <div className="bamboo-culm bamboo-culm--2">
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <div className="bamboo-leaf-sprout bamboo-leaf-sprout--right">
+                  <Icon name="leaf" size={28} />
+                </div>
+              </div>
+              {/* Culm 3 */}
+              <div className="bamboo-culm bamboo-culm--3">
+                <span className="bamboo-node" />
+                <span className="bamboo-node" />
+                <div className="bamboo-leaf-sprout bamboo-leaf-sprout--left">
+                  <Icon name="leaf" size={20} />
+                </div>
+              </div>
+
+              {/* Floating Abstract Study Plates */}
+              <div className="bamboo-plate bamboo-plate--one">
+                <span className="bamboo-plate__tag">BÀI GIẢNG CHỌN LỌC</span>
+                <strong>TRI THỨC XANH</strong>
+                <p>Mỗi tài liệu là một mầm tre nuôi dưỡng tương lai.</p>
+                <div className="bamboo-plate__seam" />
+              </div>
+
+              <div className="bamboo-plate bamboo-plate--two">
+                <div className="bamboo-plate__icon">
+                  <Icon name="book" size={32} />
+                </div>
+                <span>StudyHub Open Community</span>
+              </div>
+
+              <div className="bamboo-hero__seal">
+                <span>TRE VƯƠN</span>
+                <strong>2026</strong>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="container page-section">
-        <div className="section-heading">
-          <div><span className="eyebrow">Thư viện cộng đồng</span><h2>Tài liệu mới dành cho bạn</h2></div>
-          <Link className="text-link" to="/upload">Chia sẻ tài liệu <Icon name="arrow" size={17} /></Link>
+      {/* Main Catalog Section */}
+      <section className="container bamboo-catalog-section">
+        <div className="bamboo-section-header">
+          <div>
+            <div className="bamboo-eyebrow">
+              <Icon name="leaf" size={14} />
+              <span>Kho tàng học liệu</span>
+            </div>
+            <h2 className="bamboo-section-header__title">Tài liệu học tập mới từ cộng đồng</h2>
+            <p className="bamboo-section-header__subtitle">
+              Được đóng góp và kiểm duyệt bởi các bạn sinh viên và giảng viên năng động.
+            </p>
+          </div>
+
+          <Link className="bamboo-btn bamboo-btn--secondary" to="/upload">
+            <Icon name="upload" size={16} />
+            <span>Chia sẻ tài liệu mới</span>
+          </Link>
         </div>
-        <div className="filters" aria-label="Bộ lọc tài liệu">
-          <div className="category-tabs">
-            <button className={!categoryId ? 'is-active' : ''} onClick={() => updateFilter('categoryId', '')}>Tất cả</button>
+
+        {/* Filter Toolbar */}
+        <div className="bamboo-filter-bar">
+          <div className="bamboo-categories-wrap" aria-label="Bộ lọc danh mục">
+            <button
+              type="button"
+              className={`bamboo-cat-chip ${!categoryId ? 'is-active' : ''}`}
+              onClick={() => updateFilter('categoryId', '')}
+            >
+              <Icon name="layers" size={14} />
+              <span>Tất cả</span>
+            </button>
             {categories.map((category) => (
-              <button key={category.id} className={categoryId === category.id ? 'is-active' : ''} onClick={() => updateFilter('categoryId', category.id)}>{category.name}</button>
+              <button
+                key={category.id}
+                type="button"
+                className={`bamboo-cat-chip ${categoryId === category.id ? 'is-active' : ''}`}
+                onClick={() => updateFilter('categoryId', category.id)}
+              >
+                <span>{category.name}</span>
+              </button>
             ))}
           </div>
-          <label className="select-field">Sắp xếp
-            <select value={sortedBy} onChange={(event) => updateFilter('sortedBy', event.target.value)}>
-              <option value="created_at">Mới nhất</option>
-              <option value="review_count">Nhiều đánh giá</option>
-              <option value="view_count">Nhiều lượt xem</option>
-              <option value="download_count">Nhiều lượt tải</option>
+
+          <div className="bamboo-sort-field">
+            <label htmlFor="bamboo-sort-select">
+              <Icon name="trending" size={15} /> Sắp xếp:
+            </label>
+            <select
+              id="bamboo-sort-select"
+              value={sortedBy}
+              onChange={(event) => updateFilter('sortedBy', event.target.value)}
+            >
+              <option value="created_at">Mới đăng nhất</option>
+              <option value="review_count">Nhiều đánh giá nhất</option>
+              <option value="view_count">Nhiều lượt xem nhất</option>
+              <option value="download_count">Nhiều lượt tải nhất</option>
             </select>
-          </label>
+          </div>
         </div>
-        {loading ? <PageLoader /> : error ? <ErrorState message={error} onRetry={load} /> : documents.length === 0 ? (
-          <EmptyState title="Chưa tìm thấy tài liệu" description="Thử thay đổi từ khóa hoặc danh mục để xem thêm kết quả." />
+
+        {/* Document Results Grid */}
+        {loading ? (
+          <PageLoader label="Đang chọn lọc tài liệu từ kho tri thức…" />
+        ) : error ? (
+          <ErrorState message={error} onRetry={load} />
+        ) : documents.length === 0 ? (
+          <EmptyState
+            title="Chưa tìm thấy tài liệu phù hợp"
+            description="Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn danh mục khác."
+            action={
+              <button
+                type="button"
+                className="bamboo-btn bamboo-btn--secondary"
+                onClick={() => {
+                  setKeyword('');
+                  const next = new URLSearchParams();
+                  setSearchParams(next);
+                }}
+              >
+                Xóa bộ lọc tìm kiếm
+              </button>
+            }
+          />
         ) : (
           <>
-            <div className="document-grid">{documents.map((document) => <DocumentCard key={document.id} document={document} />)}</div>
-            <Pagination data={pagination} onChange={(nextPage) => { const next = new URLSearchParams(searchParams); next.set('page', String(nextPage)); setSearchParams(next); window.scrollTo({ top: 500, behavior: 'smooth' }); }} />
+            <div className="bamboo-grid">
+              {documents.map((doc) => (
+                <DocumentCard key={doc.id} document={doc} />
+              ))}
+            </div>
+
+            <Pagination data={pagination} onChange={(nextPage) => updateFilter('page', String(nextPage))} />
           </>
         )}
       </section>
 
-      <section className="cta-band">
-        <div className="container cta-band__inner"><div><span className="eyebrow">Cùng xây kho tri thức</span><h2>Bạn có tài liệu hữu ích?</h2><p>Một bài ghi chú của bạn có thể giúp nhiều người học tốt hơn.</p></div><Link className="button button--light" to="/upload"><Icon name="upload" size={18} /> Đăng tài liệu ngay</Link></div>
+      {/* Community Contribution Band */}
+      <section className="bamboo-cta-band">
+        <div className="container bamboo-cta-band__inner">
+          <div className="bamboo-cta-band__text">
+            <span className="bamboo-pill bamboo-pill--dark">🌱 Cùng vun đắp mầm tri thức</span>
+            <h2>Bạn có tài liệu học tập hữu ích muốn sẻ chia?</h2>
+            <p>
+              Mỗi đề cương, bài giảng hay báo cáo đồ án bạn đăng tải sẽ tiếp sức cho hàng ngàn
+              sinh viên khác trên con đường học vấn.
+            </p>
+          </div>
+          <Link className="bamboo-btn bamboo-btn--primary bamboo-btn--lg" to="/upload">
+            <Icon name="upload" size={18} />
+            <span>Đăng tài liệu ngay</span>
+          </Link>
+        </div>
       </section>
-    </>
+    </div>
   );
 }
